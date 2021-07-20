@@ -55,8 +55,8 @@ export const schema = makeSchema({
     debug: process.env.NODE_ENV === 'development',
   },
   contextType: {
-    module: join(process.cwd(), 'src', 'context.ts'),
-    export: 'Context',
+    module: join(process.cwd(), "graphql-context.ts"),
+    export: "Context",
   },
   nonNullDefaults: {
     input: true,
