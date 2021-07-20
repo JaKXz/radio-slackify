@@ -7,11 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "ts-node": "ts-node --compiler-options '{\"module\":\"CommonJS\"}'"
   },
   "dependencies": {
+    "@prisma/client": "2.27.0",
+    "apollo-server-micro": "^3.0.2",
+    "graphql": "^15.5.1",
+    "micro": "^9.3.4",
     "next": "11.0.1",
     "query-string": "^7.0.1",
+    "nexus": "^1.1.0",
+    "prisma": "2.27.0",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
@@ -24,6 +31,7 @@
     "husky": "^7.0.1",
     "prettier": "^2.3.2",
     "pretty-quick": "^3.1.1",
+    "ts-node": "^10.1.0",
     "typescript": "4.3.5"
   }
 }
