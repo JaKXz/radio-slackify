@@ -31,6 +31,10 @@ export interface NexusGenObjects {
   Album: prisma.Album;
   Artist: prisma.Artist;
   Query: {};
+  Station: prisma.Station;
+  StationMeta: { // root type
+    name: string; // String!
+  }
 }
 
 export interface NexusGenInterfaces {
@@ -57,6 +61,15 @@ export interface NexusGenFieldTypes {
   }
   Query: { // field return type
     albums: NexusGenRootTypes['Album'][]; // [Album!]!
+    stations: NexusGenRootTypes['Station'][]; // [Station!]!
+  }
+  Station: { // field return type
+    id: number; // Int!
+    meta: NexusGenRootTypes['StationMeta']; // StationMeta!
+    name: string; // String!
+  }
+  StationMeta: { // field return type
+    name: string; // String!
   }
 }
 
@@ -74,12 +87,24 @@ export interface NexusGenFieldTypeNames {
   }
   Query: { // field return type name
     albums: 'Album'
+    stations: 'Station'
+  }
+  Station: { // field return type name
+    id: 'Int'
+    meta: 'StationMeta'
+    name: 'String'
+  }
+  StationMeta: { // field return type name
+    name: 'String'
   }
 }
 
 export interface NexusGenArgTypes {
   Query: {
     albums: { // args
+      first: number; // Int!
+    }
+    stations: { // args
       first: number; // Int!
     }
   }

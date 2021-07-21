@@ -17,4 +17,15 @@ type Artist {
 
 type Query {
   albums(first: Int!): [Album!]!
+  stations(first: Int!): [Station!]!
+}
+
+type Station {
+  id: Int!
+  meta: StationMeta!
+  name: String!
+}
+
+type StationMeta {
+  name: String!
 }

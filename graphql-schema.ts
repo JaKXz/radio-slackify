@@ -12,6 +12,16 @@ const Query = queryType({
         return ctx.prisma.album.findMany({take: args.first});
       },
     });
+
+    t.list.field('stations', {
+      type: 'Station',
+      args: {
+        first: 'Int',
+      },
+      resolve(_root, args, ctx) {
+        return ctx.prisma.station.findMany({take: args.first});
+      }
+    });
   },
 });
 
@@ -43,8 +53,29 @@ const Album = objectType({
   },
 });
 
+const Station = objectType({
+  name: 'Station',
+  definition(t) {
+    t.int('id');
+    t.string('name');
+    t.field('meta', {
+      type: 'StationMeta',
+      async resolve(station, _args, ctx) {
+        return {'name': station.name};
+      }
+    });
+  },
+});
+
+const StationMeta = objectType({
+  name: 'StationMeta',
+  definition(t) {
+    t.string('name');
+  },
+});
+
 export const schema = makeSchema({
-  types: [Query, Artist, Album],
+  types: [Query, Artist, Album, Station, StationMeta],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'schema.graphql'),

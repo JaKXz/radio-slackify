@@ -24,3 +24,8 @@ model Artist {
   url    String
   albums Album[]
 }
+
+model Station {
+  id     Int     @id @default(autoincrement())
+  name   String
+}
