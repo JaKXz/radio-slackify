@@ -1,13 +1,27 @@
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useRouter} from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
 import {parse} from 'query-string';
+import SpotifyWebPlayer from 'react-spotify-web-playback';
+import {seek} from 'react-spotify-web-playback/lib/spotify';
 
 import useLocalStorage from '../hooks/use-local-storage';
 import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
-import SpotifyWebPlayer from 'react-spotify-web-playback';
+
+const MOCK_STATION_TRACKS = [
+  {
+    id: 1,
+    spotifyUri: 'spotify:artist:6HQYnRM4OzToCYPpVBInuU',
+    playAt: '2021-07-21T20:40:40.691Z',
+  },
+  {
+    id: 2,
+    spotifyUri: 'spotify:track:11dFghVXANMlKmJXsNCbNl',
+    playAt: '2021-07-21T20:15:40.691Z',
+  },
+];
 
 export default function Home() {
   const router = useRouter();
@@ -16,6 +30,8 @@ export default function Home() {
     0,
   );
   const [spotifyToken, setSpotifyToken] = useLocalStorage('spotifyToken', '');
+
+  const [currentTrack, setCurrentTrack] = useState<any>({});
 
   useEffect(() => {
     if (router.asPath.includes('access_token')) {
@@ -28,6 +44,22 @@ export default function Home() {
       router.replace('/');
     }
   }, [router, setSpotifyToken, setSpotifyTokenExpiry]);
+
+  useEffect(() => {
+    setCurrentTrack(() => {
+      const today = new Date();
+      const closest = MOCK_STATION_TRACKS.reduce(
+        (a, b) => (new Date(a.playAt) > new Date(b.playAt) ? a : b),
+        {playAt: ''},
+      );
+
+      console.log(closest);
+
+      return closest;
+    });
+  }, [setCurrentTrack]);
+
+  console.log(Date.now() - new Date(currentTrack.playAt));
 
   return (
     <div className={styles.container}>
@@ -45,9 +77,17 @@ export default function Home() {
         ) : (
           <SpotifyWebPlayer
             token={spotifyToken}
-            uris={['spotify:artist:6HQYnRM4OzToCYPpVBInuU']}
+            uris={[currentTrack.spotifyUri]}
           />
         )}
+
+        <button
+          onClick={() =>
+            seek(spotifyToken, Date.now() - new Date(currentTrack.playAt))
+          }
+        >
+          seek a bti
+        </button>
       </main>
 
       <footer className={styles.footer}>
