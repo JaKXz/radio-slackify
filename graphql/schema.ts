@@ -39,13 +39,30 @@ const Query = queryType({
         });
       },
     });
+  },
+});
 
-    //   t.list.field('all_tracks', {
-    //     type: 'Track',
-    //     resolve(_root, args, ctx) {
-    //       return ctx.prisma.track.findMany();
-    //     }
-    //   })
+const TrackMutation = extendType({
+  type: 'Mutation',
+  definition(t) {
+    t.nonNull.field('createTrack', {
+      type: 'Track',
+      args: {
+        stationId: 'ID',
+        spotifyURI: nullable('String'),
+        appleMusicURI: nullable('String'),
+      },
+      resolve(_root, args, ctx) {
+        return ctx.prisma.track.create({
+          data: {
+            stationId: parseInt(args.stationId),
+            spotifyURI: args.spotifyURI,
+            appleMusicURI: args.appleMusicURI,
+            // playAt:
+          },
+        });
+      },
+    });
   },
 });
 
@@ -114,7 +131,7 @@ const Track = objectType({
 });
 
 export const schema = makeSchema({
-  types: [Query, Artist, Album, Station, StationMeta, Track],
+  types: [Query, TrackMutation, Artist, Album, Station, StationMeta, Track],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),
