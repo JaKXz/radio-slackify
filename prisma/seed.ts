@@ -21,6 +21,14 @@ async function main() {
     }
   });
   console.log({testStation});
+  const track1 = await prisma.track.create({
+    data: {
+      startAt: new Date(),
+      spotifyURI: "spotify:another-one-bites-the-dust",
+      stationId: testStation.id,
+    }
+  });
+  console.log({track1});
 }
 
 main()

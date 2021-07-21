@@ -1,4 +1,4 @@
-import {makeSchema, objectType, queryType} from 'nexus';
+import {list, makeSchema, nullable, objectType, queryType} from 'nexus';
 import {join} from 'path';
 
 const Query = queryType({
@@ -14,13 +14,17 @@ const Query = queryType({
     });
 
     t.list.field('stations', {
-      type: 'Station',
+      type: list('Station'),
       args: {
-        first: 'Int',
+        id: nullable('ID'),
       },
       resolve(_root, args, ctx) {
-        return ctx.prisma.station.findMany({take: args.first});
-      },
+        if( args.id ) {
+          return [ctx.prisma.station.findUnique({where: {id: parseInt(args.id)}})];
+        } else {
+          return ctx.prisma.station.findMany();
+        }
+      }
     });
   },
 });
@@ -56,13 +60,25 @@ const Album = objectType({
 const Station = objectType({
   name: 'Station',
   definition(t) {
-    t.int('id');
+    t.id('id');
     t.string('name');
     t.field('meta', {
       type: 'StationMeta',
       async resolve(station, _args, ctx) {
         return {name: station.name};
       },
+    });
+    t.field('playHead', {
+      type: 'PlayHead',
+      async resolve (station, _args, ctx) {
+        const track = await ctx.prisma.track.findFirst({
+          where: {stationId: station.id, startAt: {lt: (new Date())}}
+        });
+        return {
+          'currentTrack': track!,
+          'positionInSeconds': (new Date()).getSeconds() - track!.startAt.getSeconds(),
+        }
+      }
     });
   },
 });
@@ -74,8 +90,36 @@ const StationMeta = objectType({
   },
 });
 
+const PlayHead = objectType({
+  name: 'PlayHead',
+  definition(t) {
+    t.field('currentTrack', {
+      type: 'Track',
+      async resolve(station, _args, ctx) {
+        const track = await ctx.prisma.track.findFirst({
+          where: {stationId: station, startAt: {lt: Date.now()}}
+        })
+        return track!;
+      }
+    });
+    t.field('positionInSeconds', {
+      type: 'String',
+      
+    });
+  },
+});
+
+const Track = objectType({
+  name: 'Track',
+  definition(t) {
+    t.id('id');
+    t.string('spotifyURI');
+    t.string('appleMusicURI');
+  }
+})
+
 export const schema = makeSchema({
-  types: [Query, Artist, Album, Station, StationMeta],
+  types: [Query, Artist, Album, Station, StationMeta, PlayHead, Track],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),
