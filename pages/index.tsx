@@ -1,8 +1,35 @@
+import {useState, useEffect} from "react";
+import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Image from 'next/image'
+
+import { redirectUri, clientId, scopes, authEndpoint, responseType } from './auth/auth';
+
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
+  const router = useRouter()
+  const [tracks, setTracks] = useState<any>([]);
+
+  useEffect(() => {
+    fetch('/api/track').then(res => res.json()).then(track => setTracks((prev: any) => prev.concat(track)));
+  }, []);
+
+  let params: URLSearchParams = new URLSearchParams({
+    client_id: encodeURI(clientId),
+    redirect_uri: encodeURI(redirectUri),
+    scope: scopes.join('%20'),
+    response_type: encodeURI(responseType),
+  });
+
+  useEffect(() => {
+    if(window.location.href.indexOf("access_token")){
+      // Get the auth code from here
+      console.log(window.location.href)
+      router.push('/')
+    }
+  }, []);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -11,45 +38,14 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <a className="sign-in-button" href={authEndpoint + params.toString()}>
+        Login to Spotify
+      </a>
+
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        {tracks.map((track: any) => (
+          <div key={track.id}><pre>{JSON.stringify(track, null, 2)}</pre></div>
+        ))}
       </main>
 
       <footer className={styles.footer}>
