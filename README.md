@@ -2,11 +2,29 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, run the development server:
+1. Install node dependencies:
 
 ```bash
-npm run dev
-# or
+yarn install
+```
+
+2. Copy **.env.example** file and rename it to **.env**
+
+3. Set up SQlite datebase
+
+```bash
+npx prisma migrate dev
+```
+
+4. Then, seed the database
+
+```bash
+npx prisma db seed --preview-feature
+```
+
+5. Run the development server:
+
+```bash
 yarn dev
 ```
 

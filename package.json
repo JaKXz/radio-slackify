@@ -8,8 +8,6 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "husky install",
-    "db-migrate": "prisma migrate dev",
-    "db-seed": "prisma db seed --preview-feature",
     "ts-node": "ts-node --compiler-options '{\"module\":\"CommonJS\"}'"
   },
   "dependencies": {
