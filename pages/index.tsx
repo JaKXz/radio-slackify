@@ -7,6 +7,7 @@ import {parse} from 'query-string';
 import useLocalStorage from '../hooks/use-local-storage';
 import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
+import SpotifyWebPlayer from 'react-spotify-web-playback';
 
 export default function Home() {
   const router = useRouter();
@@ -42,7 +43,10 @@ export default function Home() {
             Login to Spotify
           </a>
         ) : (
-          <div>Logged in to Spotify ✅</div>
+          <SpotifyWebPlayer
+            token={spotifyToken}
+            uris={['spotify:artist:6HQYnRM4OzToCYPpVBInuU']}
+          />
         )}
       </main>
 
