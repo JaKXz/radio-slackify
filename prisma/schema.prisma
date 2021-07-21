@@ -37,5 +37,5 @@ model Track {
   appleMusicURI   String?
   station         Station @relation(fields: [stationId], references: [id])
   stationId       Int
-  startAt         DateTime
+  playAt          DateTime @default(now())
 }

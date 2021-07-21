@@ -1,5 +1,6 @@
-import {list, makeSchema, nullable, objectType, queryType} from 'nexus';
+import {makeSchema, nullable, objectType, queryType, extendType} from 'nexus';
 import {join} from 'path';
+import {format} from 'date-fns';
 
 const Query = queryType({
   definition(t) {
@@ -19,12 +20,12 @@ const Query = queryType({
         id: nullable('ID'),
       },
       resolve(_root, args, ctx) {
-        if( args.id ) {
+        if (args.id) {
           return ctx.prisma.station.findMany({where: {id: parseInt(args.id)}});
         } else {
           return ctx.prisma.station.findMany();
         }
-      }
+      },
     });
 
     t.list.field('tracks', {
@@ -33,9 +34,18 @@ const Query = queryType({
         stationId: 'ID',
       },
       resolve(_root, args, ctx) {
-        return ctx.prisma.track.findMany({where: {stationId: parseInt(args.stationId)}});
-      }
-    })
+        return ctx.prisma.track.findMany({
+          where: {stationId: parseInt(args.stationId)},
+        });
+      },
+    });
+
+    //   t.list.field('all_tracks', {
+    //     type: 'Track',
+    //     resolve(_root, args, ctx) {
+    //       return ctx.prisma.track.findMany();
+    //     }
+    //   })
   },
 });
 
@@ -94,8 +104,14 @@ const Track = objectType({
     t.id('id');
     t.nullable.string('spotifyURI');
     t.nullable.string('appleMusicURI');
-  }
-})
+    t.field('playAt', {
+      type: 'String',
+      async resolve(track) {
+        return format(track.playAt, 'yyyy-MM-dd HH:mm:ss');
+      },
+    });
+  },
+});
 
 export const schema = makeSchema({
   types: [Query, Artist, Album, Station, StationMeta, Track],
