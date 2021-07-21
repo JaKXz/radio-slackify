@@ -92,8 +92,8 @@ const Track = objectType({
   name: 'Track',
   definition(t) {
     t.id('id');
-    t.string('spotifyURI');
-    t.string('appleMusicURI');
+    t.nullable.string('spotifyURI');
+    t.nullable.string('appleMusicURI');
   }
 })
 
