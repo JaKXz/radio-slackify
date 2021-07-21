@@ -13,6 +13,6 @@ export const scopes: string[] = [
 
 export const responseType: string = 'token';
 
-export const clientId: string = "2ad13e2f30cc4931b6b3c2575b865287"
+export const clientId: string = '2ad13e2f30cc4931b6b3c2575b865287';
 
-export const redirectUri: string = "http://localhost:3000"
+export const redirectUri: string = 'http://localhost:3000';
