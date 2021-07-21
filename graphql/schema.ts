@@ -20,7 +20,7 @@ const Query = queryType({
       },
       resolve(_root, args, ctx) {
         return ctx.prisma.station.findMany({take: args.first});
-      }
+      },
     });
   },
 });
@@ -61,8 +61,8 @@ const Station = objectType({
     t.field('meta', {
       type: 'StationMeta',
       async resolve(station, _args, ctx) {
-        return {'name': station.name};
-      }
+        return {name: station.name};
+      },
     });
   },
 });
@@ -78,16 +78,16 @@ export const schema = makeSchema({
   types: [Query, Artist, Album, Station, StationMeta],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
-    schema: join(process.cwd(), 'schema.graphql'),
-    typegen: join(process.cwd(), 'nexus.ts'),
+    schema: join(process.cwd(), 'graphql', 'schema.graphql'),
+    typegen: join(process.cwd(), 'graphql', 'nexus.ts'),
   },
   sourceTypes: {
     modules: [{module: '.prisma/client', alias: 'prisma'}],
     debug: process.env.NODE_ENV === 'development',
   },
   contextType: {
-    module: join(process.cwd(), "graphql-context.ts"),
-    export: "Context",
+    module: join(process.cwd(), 'graphql', 'context.ts'),
+    export: 'Context',
   },
   nonNullDefaults: {
     input: true,
