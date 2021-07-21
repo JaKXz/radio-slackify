@@ -1,8 +1,33 @@
+import {useEffect} from 'react';
+import {useRouter} from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
+import {parse} from 'query-string';
+
+import useLocalStorage from '../hooks/use-local-storage';
+import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
+  const router = useRouter();
+  const [spotifyTokenExpiry, setSpotifyTokenExpiry] = useLocalStorage(
+    'spotifyTokenExpiry',
+    0,
+  );
+  const [spotifyToken, setSpotifyToken] = useLocalStorage('spotifyToken', '');
+
+  useEffect(() => {
+    if (router.asPath.includes('access_token')) {
+      // Get the auth code from here
+      const {access_token, expires_in} = parse(
+        router.asPath.replace(/\//g, ''),
+      );
+      setSpotifyToken(access_token as string);
+      setSpotifyTokenExpiry(Number(expires_in) * 1000 + Date.now());
+      router.replace('/');
+    }
+  }, [router, setSpotifyToken, setSpotifyTokenExpiry]);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -12,44 +37,13 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
+        {spotifyTokenExpiry < Date.now() ? (
+          <a className={styles.SignIn} href={spotifyLoginUrl}>
+            Login to Spotify
           </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        ) : (
+          <div>Logged in to Spotify ✅</div>
+        )}
       </main>
 
       <footer className={styles.footer}>
