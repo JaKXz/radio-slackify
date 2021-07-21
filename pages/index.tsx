@@ -1,32 +1,40 @@
-import {useState, useEffect} from "react";
-import { useRouter } from 'next/router'
-import Head from 'next/head'
-import Image from 'next/image'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import Head from "next/head";
+import Image from "next/image";
 
-import { redirectUri, clientId, scopes, authEndpoint, responseType } from './auth/auth';
+import {
+  redirectUri,
+  clientId,
+  scopes,
+  authEndpoint,
+  responseType,
+} from "./auth/auth";
 
-import styles from '../styles/Home.module.css'
+import styles from "../styles/Home.module.css";
 
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
   const [tracks, setTracks] = useState<any>([]);
 
   useEffect(() => {
-    fetch('/api/track').then(res => res.json()).then(track => setTracks((prev: any) => prev.concat(track)));
+    fetch("/api/track")
+      .then((res) => res.json())
+      .then((track) => setTracks((prev: any) => prev.concat(track)));
   }, []);
 
   let params: URLSearchParams = new URLSearchParams({
     client_id: encodeURI(clientId),
     redirect_uri: encodeURI(redirectUri),
-    scope: scopes.join('%20'),
+    scope: scopes.join("%20"),
     response_type: encodeURI(responseType),
   });
 
   useEffect(() => {
-    if(window.location.href.indexOf("access_token")){
+    if (window.location.href.indexOf("access_token")) {
       // Get the auth code from here
-      console.log(window.location.href)
-      router.push('/')
+      console.log(window.location.href);
+      router.push("/");
     }
   }, []);
 
@@ -44,7 +52,9 @@ export default function Home() {
 
       <main className={styles.main}>
         {tracks.map((track: any) => (
-          <div key={track.id}><pre>{JSON.stringify(track, null, 2)}</pre></div>
+          <div key={track.id}>
+            <pre>{JSON.stringify(track, null, 2)}</pre>
+          </div>
         ))}
       </main>
 
@@ -54,12 +64,12 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
+          Powered by{" "}
           <span className={styles.logo}>
             <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
           </span>
         </a>
       </footer>
     </div>
-  )
+  );
 }
