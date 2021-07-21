@@ -26,6 +26,16 @@ const Query = queryType({
         }
       }
     });
+
+    t.list.field('tracks', {
+      type: 'Track',
+      args: {
+        stationId: 'ID',
+      },
+      resolve(_root, args, ctx) {
+        return ctx.prisma.track.findMany({where: {stationId: parseInt(args.stationId)}});
+      }
+    })
   },
 });
 
