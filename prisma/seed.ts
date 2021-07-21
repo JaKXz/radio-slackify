@@ -15,6 +15,12 @@ async function main() {
     },
   });
   console.log({comeback});
+  const testStation = await prisma.station.create({
+    data: {
+      name: "Radio ABC",
+    }
+  });
+  console.log({testStation});
 }
 
 main()
