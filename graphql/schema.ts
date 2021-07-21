@@ -68,18 +68,6 @@ const Station = objectType({
         return {name: station.name};
       },
     });
-    t.field('playHead', {
-      type: 'PlayHead',
-      async resolve (station, _args, ctx) {
-        const track = await ctx.prisma.track.findFirst({
-          where: {stationId: station.id, startAt: {lt: (new Date())}}
-        });
-        return {
-          'currentTrack': track!,
-          'positionInSeconds': (new Date()).getSeconds() - track!.startAt.getSeconds(),
-        }
-      }
-    });
   },
 });
 
@@ -87,25 +75,6 @@ const StationMeta = objectType({
   name: 'StationMeta',
   definition(t) {
     t.string('name');
-  },
-});
-
-const PlayHead = objectType({
-  name: 'PlayHead',
-  definition(t) {
-    t.field('currentTrack', {
-      type: 'Track',
-      async resolve(station, _args, ctx) {
-        const track = await ctx.prisma.track.findFirst({
-          where: {stationId: station, startAt: {lt: Date.now()}}
-        })
-        return track!;
-      }
-    });
-    t.field('positionInSeconds', {
-      type: 'String',
-      
-    });
   },
 });
 
@@ -119,7 +88,7 @@ const Track = objectType({
 })
 
 export const schema = makeSchema({
-  types: [Query, Artist, Album, Station, StationMeta, PlayHead, Track],
+  types: [Query, Artist, Album, Station, StationMeta, Track],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),
