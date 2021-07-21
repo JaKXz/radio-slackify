@@ -37,3 +37,7 @@ yarn-error.log*
 # sqlite
 dev.db
 dev.db-journal
+
+# Nexus auto-generated files
+graphql/nexus.ts
+graphql/schema.graphql
