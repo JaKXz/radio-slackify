@@ -14,13 +14,13 @@ const Query = queryType({
     });
 
     t.list.field('stations', {
-      type: list('Station'),
+      type: 'Station',
       args: {
         id: nullable('ID'),
       },
       resolve(_root, args, ctx) {
         if( args.id ) {
-          return [ctx.prisma.station.findUnique({where: {id: parseInt(args.id)}})];
+          return ctx.prisma.station.findMany({where: {id: parseInt(args.id)}});
         } else {
           return ctx.prisma.station.findMany();
         }
