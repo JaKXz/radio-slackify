@@ -1,40 +1,32 @@
-import {useState, useEffect} from 'react';
+import {useEffect} from 'react';
 import {useRouter} from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
-import {
-  redirectUri,
-  clientId,
-  scopes,
-  authEndpoint,
-  responseType,
-} from './auth/auth';
+import {parse} from 'query-string';
+
+import useLocalStorage from '../hooks/use-local-storage';
+import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
   const router = useRouter();
-  const [tracks, setTracks] = useState<any>([]);
+  const [spotifyTokenExpiry, setSpotifyTokenExpiry] = useLocalStorage(
+    'spotifyTokenExpiry',
+    0,
+  );
+  const [spotifyToken, setSpotifyToken] = useLocalStorage('spotifyToken', '');
 
   useEffect(() => {
-    fetch('/api/track')
-      .then((res) => res.json())
-      .then((track) => setTracks((prev: any) => prev.concat(track)));
-  }, []);
-
-  let params: URLSearchParams = new URLSearchParams({
-    client_id: encodeURI(clientId),
-    redirect_uri: encodeURI(redirectUri),
-    scope: scopes.join('%20'),
-    response_type: encodeURI(responseType),
-  });
-
-  useEffect(() => {
-    if (window.location.href.indexOf('access_token')) {
+    if (router.asPath.includes('access_token')) {
       // Get the auth code from here
-      console.log(window.location.href);
-      router.push('/');
+      const {access_token, expires_in} = parse(
+        router.asPath.replace(/\//g, ''),
+      );
+      setSpotifyToken(access_token as string);
+      setSpotifyTokenExpiry(Number(expires_in) * 1000 + Date.now());
+      router.replace('/');
     }
-  }, []);
+  }, [router, setSpotifyToken, setSpotifyTokenExpiry]);
 
   return (
     <div className={styles.container}>
@@ -44,16 +36,14 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <a className="sign-in-button" href={authEndpoint + params.toString()}>
-        Login to Spotify
-      </a>
-
       <main className={styles.main}>
-        {tracks.map((track: any) => (
-          <div key={track.id}>
-            <pre>{JSON.stringify(track, null, 2)}</pre>
-          </div>
-        ))}
+        {spotifyTokenExpiry < Date.now() ? (
+          <a className={styles.SignIn} href={spotifyLoginUrl}>
+            Login to Spotify
+          </a>
+        ) : (
+          <div>Logged in to Spotify ✅</div>
+        )}
       </main>
 
       <footer className={styles.footer}>
