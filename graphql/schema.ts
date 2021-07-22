@@ -44,6 +44,25 @@ const Query = queryType({
   },
 });
 
+const StationMutation = extendType({
+  type: 'Mutation',
+  definition(t) {
+    t.nonNull.field('createStation', {
+      type: 'Station',
+      args: {
+        name: 'String',
+      },
+      async resolve(_root, args, ctx) {
+        return ctx.prisma.station.create({
+          data: {
+            name: args.name,
+          },
+        });
+      },
+    });
+  },
+});
+
 const TrackMutation = extendType({
   type: 'Mutation',
   definition(t) {
@@ -129,7 +148,7 @@ const Track = objectType({
 });
 
 export const schema = makeSchema({
-  types: [Query, TrackMutation, Station, StationMeta, Track],
+  types: [Query, TrackMutation, StationMutation, Station, StationMeta, Track],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),
