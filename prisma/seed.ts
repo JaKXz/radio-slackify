@@ -17,14 +17,14 @@ async function main() {
   console.log({comeback});
   const testStation = await prisma.station.create({
     data: {
-      name: "Radio ABC",
-    }
+      name: 'Radio ABC',
+    },
   });
   console.log({testStation});
   const track1 = await prisma.track.create({
     data: {
-      startAt: new Date(),
-      spotifyURI: "spotify:another-one-bites-the-dust",
+      playAt: new Date(),
+      spotifyURI: 'spotify:another-one-bites-the-dust',
       stationId: testStation.id,
       name: 'Another One Bites the Dust',
       lengthInSeconds: 300,
