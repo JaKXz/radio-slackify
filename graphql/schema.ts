@@ -6,16 +6,6 @@ import {Context} from './context';
 
 const Query = queryType({
   definition(t) {
-    t.list.field('albums', {
-      type: 'Album',
-      args: {
-        first: 'Int',
-      },
-      resolve(_root, args, ctx) {
-        return ctx.prisma.album.findMany({take: args.first});
-      },
-    });
-
     t.list.field('stations', {
       type: 'Station',
       args: {
@@ -91,34 +81,6 @@ async function calculateNewTrackPlayAt(station: StationModel, ctx: Context) {
   return max([lastTrackEndsAt, now]);
 }
 
-const Artist = objectType({
-  name: 'Artist',
-  definition(t) {
-    t.int('id');
-    t.string('name');
-    t.string('url');
-  },
-});
-
-const Album = objectType({
-  name: 'Album',
-  definition(t) {
-    t.int('id');
-    t.string('name');
-    t.string('year');
-    t.field('artist', {
-      type: 'Artist',
-      async resolve(album, _args, ctx) {
-        const artist = await ctx.prisma.artist.findFirst({
-          where: {id: album.artistId},
-        });
-        // The ! tells TypeScript to trust us, it won't be null
-        return artist!;
-      },
-    });
-  },
-});
-
 const Station = objectType({
   name: 'Station',
   definition(t) {
@@ -157,7 +119,7 @@ const Track = objectType({
 });
 
 export const schema = makeSchema({
-  types: [Query, TrackMutation, Artist, Album, Station, StationMeta, Track],
+  types: [Query, TrackMutation, Station, StationMeta, Track],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),
