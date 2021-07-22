@@ -44,26 +44,7 @@ const Query = queryType({
   },
 });
 
-const StationMutation = extendType({
-  type: 'Mutation',
-  definition(t) {
-    t.nonNull.field('createStation', {
-      type: 'Station',
-      args: {
-        name: 'String',
-      },
-      async resolve(_root, args, ctx) {
-        return ctx.prisma.station.create({
-          data: {
-            name: args.name,
-          },
-        });
-      },
-    });
-  },
-});
-
-const TrackMutation = extendType({
+const Mutation = extendType({
   type: 'Mutation',
   definition(t) {
     t.nonNull.field('createTrack', {
@@ -85,6 +66,20 @@ const TrackMutation = extendType({
             playAt: await calculateNewTrackPlayAt(station!, ctx),
             name: args.name,
             lengthInSeconds: args.lengthInSeconds,
+          },
+        });
+      },
+    });
+
+    t.nonNull.field('createStation', {
+      type: 'Station',
+      args: {
+        name: 'String',
+      },
+      async resolve(_root, args, ctx) {
+        return ctx.prisma.station.create({
+          data: {
+            name: args.name,
           },
         });
       },
@@ -148,7 +143,7 @@ const Track = objectType({
 });
 
 export const schema = makeSchema({
-  types: [Query, TrackMutation, StationMutation, Station, StationMeta, Track],
+  types: [Query, Mutation, Station, StationMeta, Track],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),
