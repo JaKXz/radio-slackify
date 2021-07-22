@@ -11,15 +11,16 @@
     "ts-node": "ts-node --compiler-options '{\"module\":\"CommonJS\"}'"
   },
   "dependencies": {
+    "@apollo/client": "^3.3.21",
     "@prisma/client": "2.27.0",
     "apollo-server-micro": "^3.0.2",
     "date-fns": "^2.22.1",
     "graphql": "^15.5.1",
     "micro": "^9.3.4",
     "next": "11.0.1",
-    "query-string": "^7.0.1",
     "nexus": "^1.1.0",
     "prisma": "2.27.0",
+    "query-string": "^7.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
