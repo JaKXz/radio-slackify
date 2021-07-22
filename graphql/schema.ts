@@ -50,14 +50,12 @@ const TrackMutation = extendType({
       args: {
         stationId: 'ID',
         spotifyURI: nullable('String'),
-        appleMusicURI: nullable('String'),
       },
       resolve(_root, args, ctx) {
         return ctx.prisma.track.create({
           data: {
             stationId: parseInt(args.stationId),
             spotifyURI: args.spotifyURI,
-            appleMusicURI: args.appleMusicURI,
             // playAt:
           },
         });
@@ -120,7 +118,6 @@ const Track = objectType({
   definition(t) {
     t.id('id');
     t.nullable.string('spotifyURI');
-    t.nullable.string('appleMusicURI');
     t.field('playAt', {
       type: 'String',
       async resolve(track) {
