@@ -9,6 +9,32 @@ import {seek} from 'react-spotify-web-playback/lib/spotify';
 import useLocalStorage from '../hooks/use-local-storage';
 import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
+import Slider from './components/Slider';
+
+const slideData = [
+  {
+    index: 0,
+    headline: 'Shopify EDM',
+    src: 'https://wallpaperaccess.com/full/3990897.jpg',
+  },
+  {
+    index: 1,
+    headline: '70s Classis',
+    src: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/225363/forest.jpg',
+  },
+  {
+    index: 2,
+    headline: 'Melody',
+    button: 'Listen',
+    src: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/225363/guitar.jpg',
+  },
+  {
+    index: 3,
+    headline: 'Heavy Metal',
+    button: 'Get Focused',
+    src: 'https://img4.goodfon.com/wallpaper/nbig/5/d6/heavy-metal-guitar-helmet-star-wars.jpg',
+  },
+];
 
 const MOCK_STATION_TRACKS = [
   {
@@ -70,6 +96,9 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+        <Slider heading="Example Slider" slides={slideData} />
+        <br />
+
         {spotifyTokenExpiry < Date.now() ? (
           <a className={styles.SignIn} href={spotifyLoginUrl}>
             Login to Spotify

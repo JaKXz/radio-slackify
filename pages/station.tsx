@@ -5,7 +5,6 @@ import SpotifyWebPlayer, {
   STATUS,
   CallbackState,
 } from 'react-spotify-web-playback';
-import dynamic from 'next/dynamic';
 
 import useLocalStorage from '../hooks/use-local-storage';
 
