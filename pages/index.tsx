@@ -86,7 +86,7 @@ export default function Home() {
             seek(spotifyToken, Date.now() - new Date(currentTrack.playAt))
           }
         >
-          seek a bti
+          Seek
         </button>
       </main>
 
