@@ -24,10 +24,20 @@ const Query = queryType({
       type: 'Track',
       args: {
         stationId: 'ID',
+        from: 'String',
+        to: nullable('String'),
       },
       resolve(_root, args, ctx) {
+        const fromDate = new Date(args.from);
+        let playAtClause;
+        if (args.to) {
+          const toDate = new Date(args.to);
+          playAtClause = {gte: fromDate, lte: toDate};
+        } else {
+          playAtClause = {gte: fromDate};
+        }
         return ctx.prisma.track.findMany({
-          where: {stationId: parseInt(args.stationId)},
+          where: {stationId: parseInt(args.stationId), playAt: playAtClause},
         });
       },
     });
