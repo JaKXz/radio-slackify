@@ -1,5 +1,5 @@
 import React from 'react';
-class Slide extends React.Component<any, any> {
+class StationCard extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
     this.handleSlideClick = this.handleSlideClick.bind(this);
@@ -65,4 +65,4 @@ class Slide extends React.Component<any, any> {
   }
 }
 
-export default Slide;
+export default StationCard;

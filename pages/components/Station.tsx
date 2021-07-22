@@ -1,7 +1,7 @@
 import React from 'react';
-import Slide from './slide';
+import StationCard from './StationCard';
 
-class Slider extends React.Component<any, any> {
+class Station extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
 
@@ -52,7 +52,7 @@ class Slider extends React.Component<any, any> {
 
           {slides.map((slide) => {
             return (
-              <Slide
+              <StationCard
                 key={slide.index}
                 slide={slide}
                 current={current}
@@ -66,4 +66,4 @@ class Slider extends React.Component<any, any> {
   }
 }
 
-export default Slider;
+export default Station;
