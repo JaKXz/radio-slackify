@@ -1,0 +1,108 @@
+.container {
+  border-radius: 5px;
+  width: 300px;
+  position: relative;
+}
+
+.searchTextBox {
+  padding: 10px 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.searchTextBox:disabled {
+  color: #555;
+  background-color: #ccc;
+}
+
+.pullDownList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.pullDownListItem {
+  border: 1px solid #999;
+  border-top: 0;
+}
+
+.pullDownListItem:last-child {
+  border-radius: 0 0 5px 5px;
+}
+
+.trackCard {
+  padding: 5px 20px 5px 40px;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.trackCard:hover {
+  background-color: #ddd;
+}
+
+.trackCardTextContainer {
+  width: 100%;
+  min-height: 30px;
+  display: block;
+}
+
+.trackCardName {
+  white-space: nowrap;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+  font-size: 0.9em;
+}
+
+.trackCardArtistName {
+  color: #555;
+  white-space: nowrap;
+  display: block;
+  font-size: 0.6em;
+  text-overflow: ellipsis;
+}
+
+.trackCardAlbumImage {
+  height: 30px;
+  width: 30px;
+  position: absolute;
+  left: 5px;
+  top: 5px;
+}
+
+.trackCardAddButton {
+  position: absolute;
+  right: 2px;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  padding: 0 3px;
+  height: 100%;
+  text-align: center;
+}
+
+.trackCardAddButton:hover {
+  fill: #fff;
+}
+
+.loadingMessage {
+  background: #666;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
