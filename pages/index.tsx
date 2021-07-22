@@ -8,6 +8,9 @@ import SpotifyWebApi, {Spotify} from 'spotify-web-api-js';
 import useLocalStorage from '../hooks/use-local-storage';
 import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
+import {useQuery} from '@apollo/client';
+import {gql} from 'apollo-server-micro';
+import client from '../graphql/apollo-client';
 
 export default function Home() {
   const router = useRouter();
@@ -35,8 +38,57 @@ export default function Home() {
     spotifyApi.setAccessToken(spotifyToken);
     const results = await spotifyApi.searchTracks(searchText, {limit: 5});
 
-    for (let track in results.tracks.items) {
-      console.log(track);
+    const choiceList = document.getElementById('songChooser');
+    if (choiceList === null) {
+      return;
+    }
+    choiceList.innerHTML = '';
+    for (let track of results.tracks.items) {
+      const li = document.createElement('li');
+      li.innerText = `${track.name} by ${track.artists[0].name}`;
+      li.dataset.trackSpotifyURI = track.uri;
+      li.dataset.trackLengthInSeconds = `${Math.floor(
+        track.duration_ms / 1000,
+      )}`;
+      li.dataset.trackName = track.name;
+
+      const APPEND_TRACK_MUTATION = gql`
+        mutation AppendTrackToPlaylist(
+          $stationId: ID!
+          $name: String!
+          $lengthInSeconds: Int!
+          $spotifyURI: String!
+        ) {
+          createTrack(
+            stationId: $stationId
+            name: $name
+            lengthInSeconds: $lengthInSeconds
+            spotifyURI: $spotifyURI
+          ) {
+            name
+            playAt
+          }
+        }
+      `;
+      li.onclick = async function () {
+        console.log(this.dataset);
+        const hasPermission = confirm(
+          `Add track ${this.dataset.trackName} to the end of the playlist?`,
+        );
+        if (hasPermission) {
+          const data = await client.mutate({
+            mutation: APPEND_TRACK_MUTATION,
+            variables: {
+              stationId: '3',
+              name: this.dataset.trackName,
+              lengthInSeconds: parseInt(this.dataset.trackLengthInSeconds),
+              spotifyURI: this.dataset.trackSpotifyURI,
+            },
+          });
+          console.log(data);
+        }
+      };
+      choiceList.appendChild(li);
     }
     console.log(results);
   }, [spotifyToken]);
@@ -59,6 +111,7 @@ export default function Home() {
         )}
         <input id="spotifySearchBox" />
         <input type="button" onClick={searchSpotify} value="Search" />
+        <ul id="songChooser"></ul>
       </main>
 
       <footer className={styles.footer}>
