@@ -216,12 +216,13 @@ export default function Home() {
           />
         )}
 
-        {/* <button
+        {/* this offsets a song in milliseconds on the spotify web player */
+        /* <button
           onClick={() =>
             seek(spotifyToken, Date.now() - new Date(currentTrack.playAt))
           }
         >
-          seek a bti
+          Seek
         </button> */}
       </footer>
     </div>
