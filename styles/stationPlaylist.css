@@ -1,0 +1,37 @@
+.playlist-container {
+  width: 200px;
+  height: 200px;
+  z-index: 1;
+  margin: 0 var(--slide-margin);
+  justify-content: center;
+  position: relative;
+  text-align: center;
+  transition: opacity calc(var(--base-duration) / 2) var(--base-ease),
+    transform calc(var(--base-duration) / 2) var(--base-ease);
+  width: var(--slide-size);
+  opacity: 0.25;
+}
+
+.track-container {
+  width: var(--slide-size);
+  height: 30px;
+  border-bottom: 0.2px solid #000000;
+  margin-bottom: 4px;
+  align-items: center;
+  text-align: center;
+  align-content: center;
+  display: flex;
+  flex-direction: row;
+}
+
+.track-image {
+  margin-left: 10px;
+  width: 25px;
+  height: 20px;
+}
+
+.track-title {
+  font-size: 12px;
+  margin-left: auto;
+  margin-right: auto;
+}

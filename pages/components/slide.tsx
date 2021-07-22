@@ -1,5 +1,4 @@
 import React from 'react';
-
 class Slide extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -16,7 +15,7 @@ class Slide extends React.Component<any, any> {
   }
 
   render() {
-    const {src, button, headline, index} = this.props.slide;
+    const {src, button, headline, index, playlistData} = this.props.slide;
     const current = this.props.current;
     let classNames = 'slide';
 
@@ -25,24 +24,43 @@ class Slide extends React.Component<any, any> {
     else if (current + 1 === index) classNames += ' slide--next';
 
     return (
-      <li
-        //   ref={this.slide}
-        className={classNames}
-        onClick={this.handleSlideClick}
-      >
-        <div className="slide__image-wrapper">
-          <img
-            className="slide__image"
-            alt={headline}
-            src={src}
-            onLoad={this.imageLoaded}
-          />
-        </div>
-
-        <article className="slide__content">
-          <h2 className="slide__headline">{headline}</h2>
-        </article>
-      </li>
+      <div>
+        <li
+          //   ref={this.slide}
+          className={classNames}
+          onClick={this.handleSlideClick}
+        >
+          <div className="slide__image-wrapper">
+            <img
+              className="slide__image"
+              alt={headline}
+              src={src}
+              onLoad={this.imageLoaded}
+            />
+          </div>
+          <article className="slide__content">
+            <h2 className="slide__headline">{headline}</h2>
+          </article>
+        </li>
+        {current === index ? (
+          <div className="playlist-container">
+            <div>
+              <div className="playlist-list">
+                {playlistData.map((item, i) => (
+                  <div className="track-container">
+                    <div className="track-image">
+                      <img className="track-image" src={item.trackArt} />
+                    </div>
+                    <div className="track-title"> {item.trackName} </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div> </div>
+        )}
+      </div>
     );
   }
 }
