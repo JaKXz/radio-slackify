@@ -125,7 +125,7 @@ const Track = objectType({
     t.field('playAt', {
       type: 'String',
       async resolve(track) {
-        return format(track.playAt, 'yyyy-MM-dd HH:mm:ss');
+        return track.playAt.toISOString();
       },
     });
     t.string('name');
