@@ -1,6 +1,8 @@
 import {makeSchema, nullable, objectType, queryType, extendType} from 'nexus';
 import {join} from 'path';
-import {format} from 'date-fns';
+import {format, max} from 'date-fns';
+import {Station as StationModel} from '.prisma/client';
+import {Context} from './context';
 
 const Query = queryType({
   definition(t) {
@@ -53,12 +55,15 @@ const TrackMutation = extendType({
         lengthInSeconds: 'Int',
         spotifyURI: nullable('String'),
       },
-      resolve(_root, args, ctx) {
+      async resolve(_root, args, ctx) {
+        const station = await ctx.prisma.station.findUnique({
+          where: {id: parseInt(args.stationId)},
+        });
         return ctx.prisma.track.create({
           data: {
             stationId: parseInt(args.stationId),
             spotifyURI: args.spotifyURI,
-            // playAt:
+            playAt: await calculateNewTrackPlayAt(station!, ctx),
             name: args.name,
             lengthInSeconds: args.lengthInSeconds,
           },
@@ -67,6 +72,24 @@ const TrackMutation = extendType({
     });
   },
 });
+
+async function calculateNewTrackPlayAt(station: StationModel, ctx: Context) {
+  const now = new Date();
+  const lastTrack = await ctx.prisma.track.findFirst({
+    where: {stationId: station.id},
+    orderBy: {playAt: 'desc'},
+  });
+  if (lastTrack === null) {
+    return now;
+  }
+  const lastTrackEndsAt = new Date(lastTrack.playAt);
+  // Add one second to add a little buffer between tracks.
+  // We don't want to chop off the last moment of one song to start the next one
+  lastTrackEndsAt.setSeconds(
+    lastTrackEndsAt.getSeconds() + lastTrack.lengthInSeconds + 1,
+  );
+  return max([lastTrackEndsAt, now]);
+}
 
 const Artist = objectType({
   name: 'Artist',
