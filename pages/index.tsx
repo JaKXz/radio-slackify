@@ -1,12 +1,15 @@
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useRouter} from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
 import {parse} from 'query-string';
+import {gql, useQuery} from '@apollo/client';
+import {add} from 'date-fns';
 
 import useLocalStorage from '../hooks/use-local-storage';
 import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
+import SpotifyWebPlayer from 'react-spotify-web-playback';
 
 export default function Home() {
   const router = useRouter();
@@ -15,6 +18,30 @@ export default function Home() {
     0,
   );
   const [spotifyToken, setSpotifyToken] = useLocalStorage('spotifyToken', '');
+  const {data, loading, error} = useQuery(
+    gql`
+      {
+        stations(id: "2") {
+          id
+          meta {
+            name
+          }
+        }
+        tracks(from: "2021-07-22T00:44:00Z", stationId: "2") {
+          id
+          name
+          lengthInSeconds
+          spotifyURI
+          playAt
+        }
+      }
+    `,
+    {
+      pollInterval: 10000,
+    },
+  );
+
+  const [currentTrack, setCurrentTrack] = useState<any>({});
 
   useEffect(() => {
     if (router.asPath.includes('access_token')) {
@@ -27,6 +54,39 @@ export default function Home() {
       router.replace('/');
     }
   }, [router, setSpotifyToken, setSpotifyTokenExpiry]);
+
+  useEffect(() => {
+    if (!loading && data) {
+      setCurrentTrack((prev: any) => {
+        const now = new Date();
+        if (prev) {
+          const playAt = new Date(prev.playAt);
+          const endAt = add(playAt, {
+            seconds: prev.lengthInSeconds,
+          });
+
+          if (playAt <= now && now < endAt) {
+            return prev;
+          }
+        }
+
+        for (let i = data.tracks.length - 1; i >= 0; i--) {
+          const track = data.tracks[i];
+          const playAt = new Date(track.playAt);
+
+          if (playAt < now) {
+            return track;
+          }
+        }
+      });
+    }
+  }, [data, loading]);
+
+  if (error) {
+    console.log(error);
+  }
+
+  console.log(currentTrack);
 
   return (
     <div className={styles.container}>
@@ -42,7 +102,12 @@ export default function Home() {
             Login to Spotify
           </a>
         ) : (
-          <div>Logged in to Spotify ✅</div>
+          <SpotifyWebPlayer
+            token={spotifyToken}
+            uris={[currentTrack.spotifyURI]}
+            initialVolume={0.5}
+            autoPlay
+          />
         )}
       </main>
 

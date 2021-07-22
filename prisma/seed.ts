@@ -11,7 +11,7 @@ async function main() {
   const track1 = await prisma.track.create({
     data: {
       playAt: new Date(),
-      spotifyURI: 'spotify:another-one-bites-the-dust',
+      spotifyURI: 'spotify:track:11dFghVXANMlKmJXsNCbNl',
       stationId: testStation.id,
       name: 'Another One Bites the Dust',
       lengthInSeconds: 300,
