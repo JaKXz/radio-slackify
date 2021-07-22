@@ -1,8 +1,9 @@
-import {useEffect} from 'react';
+import {useEffect, useCallback} from 'react';
 import {useRouter} from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
 import {parse} from 'query-string';
+import SpotifyWebApi, {Spotify} from 'spotify-web-api-js';
 
 import useLocalStorage from '../hooks/use-local-storage';
 import {spotifyLoginUrl} from '../auth/spotify';
@@ -28,6 +29,18 @@ export default function Home() {
     }
   }, [router, setSpotifyToken, setSpotifyTokenExpiry]);
 
+  const searchSpotify = useCallback(async () => {
+    const searchText = document.getElementById('spotifySearchBox')?.value;
+    const spotifyApi = new SpotifyWebApi();
+    spotifyApi.setAccessToken(spotifyToken);
+    const results = await spotifyApi.searchTracks(searchText, {limit: 5});
+
+    for (let track in results.tracks.items) {
+      console.log(track);
+    }
+    console.log(results);
+  }, [spotifyToken]);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -44,6 +57,8 @@ export default function Home() {
         ) : (
           <div>Logged in to Spotify ✅</div>
         )}
+        <input id="spotifySearchBox" />
+        <input type="button" onClick={searchSpotify} value="Search" />
       </main>
 
       <footer className={styles.footer}>
