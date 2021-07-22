@@ -37,4 +37,6 @@ model Track {
   station         Station @relation(fields: [stationId], references: [id])
   stationId       Int
   playAt          DateTime @default(now())
+  name            String
+  lengthInSeconds Int
 }

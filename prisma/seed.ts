@@ -26,7 +26,9 @@ async function main() {
       startAt: new Date(),
       spotifyURI: "spotify:another-one-bites-the-dust",
       stationId: testStation.id,
-    }
+      name: 'Another One Bites the Dust',
+      lengthInSeconds: 300,
+    },
   });
   console.log({track1});
 }

@@ -49,6 +49,8 @@ const TrackMutation = extendType({
       type: 'Track',
       args: {
         stationId: 'ID',
+        name: 'String',
+        lengthInSeconds: 'Int',
         spotifyURI: nullable('String'),
       },
       resolve(_root, args, ctx) {
@@ -57,6 +59,8 @@ const TrackMutation = extendType({
             stationId: parseInt(args.stationId),
             spotifyURI: args.spotifyURI,
             // playAt:
+            name: args.name,
+            lengthInSeconds: args.lengthInSeconds,
           },
         });
       },
@@ -124,6 +128,8 @@ const Track = objectType({
         return format(track.playAt, 'yyyy-MM-dd HH:mm:ss');
       },
     });
+    t.string('name');
+    t.int('lengthInSeconds');
   },
 });
 
