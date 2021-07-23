@@ -1,6 +1,6 @@
 import {makeSchema, nullable, objectType, queryType, extendType} from 'nexus';
 import {join} from 'path';
-import {format, max} from 'date-fns';
+import {add, format, max} from 'date-fns';
 import {Station as StationModel} from '.prisma/client';
 import {Context} from './context';
 
@@ -29,15 +29,22 @@ const Query = queryType({
       },
       resolve(_root, args, ctx) {
         const fromDate = new Date(args.from);
-        let playAtClause;
+        let whereClause;
         if (args.to) {
           const toDate = new Date(args.to);
-          playAtClause = {gte: fromDate, lte: toDate};
+          whereClause = {
+            stationId: parseInt(args.stationId),
+            endAt: {gte: fromDate},
+            playAt: {lte: toDate},
+          };
         } else {
-          playAtClause = {gte: fromDate};
+          whereClause = {
+            stationId: parseInt(args.stationId),
+            endAt: {gte: fromDate},
+          };
         }
         return ctx.prisma.track.findMany({
-          where: {stationId: parseInt(args.stationId), playAt: playAtClause},
+          where: whereClause,
         });
       },
     });
@@ -59,11 +66,14 @@ const Mutation = extendType({
         const station = await ctx.prisma.station.findUnique({
           where: {id: parseInt(args.stationId)},
         });
+        const playAt = await calculateNewTrackPlayAt(station!, ctx);
+        const endAt = add(playAt, {seconds: args.lengthInSeconds});
         return ctx.prisma.track.create({
           data: {
             stationId: parseInt(args.stationId),
             spotifyURI: args.spotifyURI,
-            playAt: await calculateNewTrackPlayAt(station!, ctx),
+            playAt: playAt,
+            endAt: endAt,
             name: args.name,
             lengthInSeconds: args.lengthInSeconds,
           },
@@ -135,6 +145,15 @@ const Track = objectType({
       type: 'String',
       async resolve(track) {
         return track.playAt.toISOString();
+      },
+    });
+    t.nullable.field('endAt', {
+      type: 'String',
+      async resolve(track) {
+        if (track.endAt === null) {
+          return null;
+        }
+        return track.endAt.toISOString();
       },
     });
     t.string('name');
