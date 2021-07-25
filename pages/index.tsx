@@ -1,32 +1,11 @@
-import {useEffect} from 'react';
-import {useRouter} from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
-import {parse} from 'query-string';
-
-import useLocalStorage from '../hooks/use-local-storage';
+import useSpotifyToken from '../hooks/use-spotify-token';
 import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
-  const router = useRouter();
-  const [spotifyTokenExpiry, setSpotifyTokenExpiry] = useLocalStorage(
-    'spotifyTokenExpiry',
-    0,
-  );
-  const [spotifyToken, setSpotifyToken] = useLocalStorage('spotifyToken', '');
-
-  useEffect(() => {
-    if (router.asPath.includes('access_token')) {
-      // Get the auth code from here
-      const {access_token, expires_in} = parse(
-        router.asPath.replace(/\//g, ''),
-      );
-      setSpotifyToken(access_token as string);
-      setSpotifyTokenExpiry(Number(expires_in) * 1000 + Date.now());
-      router.replace('/');
-    }
-  }, [router, setSpotifyToken, setSpotifyTokenExpiry]);
+  const {isSpotifyTokenExpired} = useSpotifyToken();
 
   return (
     <div className={styles.container}>
@@ -37,7 +16,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        {spotifyTokenExpiry < Date.now() ? (
+        {isSpotifyTokenExpired ? (
           <a className={styles.SignIn} href={spotifyLoginUrl}>
             Login to Spotify
           </a>
