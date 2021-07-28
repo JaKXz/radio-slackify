@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import useSpotifyToken from '../hooks/use-spotify-token';
+import StationList from '../components/station-list';
 import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
 
@@ -21,7 +22,11 @@ export default function Home() {
             Login to Spotify
           </a>
         ) : (
-          <div>Logged in to Spotify ✅</div>
+          <div>
+            Logged in to Spotify ✅
+            <br />
+            <StationList />
+          </div>
         )}
       </main>
 
