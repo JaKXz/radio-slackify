@@ -766,6 +766,13 @@ axe-core@^4.0.2:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.3.1.tgz"
   integrity sha512-3WVgVPs/7OnKU3s+lqMtkv3wQlg3WxK1YifmpJSDO0E1aPBrZWlrrTO6cxRqCXLuX2aYgCljqXIQd0VnRidV0g==
 
+axios@^0.21.1:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
+  dependencies:
+    follow-redirects "^1.10.0"
+
 axobject-query@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.2.0.tgz"
@@ -1798,6 +1805,11 @@ flatted@^3.1.0:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.1.tgz"
   integrity sha512-OMQjaErSFHmHqZe+PSidH5n8j3O0F2DdnVh8JB4j4eUQ2k6KvB0qGfrKIhapvez5JerBbmWkaLYUYWISaESoXg==
+
+follow-redirects@^1.10.0:
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.1.tgz#d9114ded0a1cfdd334e164e6662ad02bfd91ff43"
+  integrity sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
 
 foreach@^2.0.5:
   version "2.0.5"
@@ -3134,6 +3146,13 @@ punycode@^2.1.0:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
+qs@^6.9.4:
+  version "6.10.1"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.10.1.tgz#4931482fa8d647a5aab799c5271d2133b981fb6a"
+  integrity sha512-M528Hph6wsSVOBiYUnGf+K/7w0hNshs/duGsNXPUCLH5XAqjEtiPGwNONLV0tBH8NoGb0mvD5JubnUTrujKDTg==
+  dependencies:
+    side-channel "^1.0.4"
+
 query-string@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/query-string/-/query-string-7.0.1.tgz#45bd149cf586aaa582dffc7ec7a8ad97dd02f75d"
@@ -3555,6 +3574,14 @@ spotify-web-api-js@^1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/spotify-web-api-js/-/spotify-web-api-js-1.5.1.tgz#dcdd80f3975cd79c1c1278c56b2071453b190699"
   integrity sha512-KyeYpfPY5bWc5geb0Lmw96oqydxrby36vkmN33q4xrY7oWwoz3634Ya7qHndq2eOqCfI1GS3a5CjimYe7RQdtg==
+
+spotify-web-api-ts@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/spotify-web-api-ts/-/spotify-web-api-ts-1.4.5.tgz#4a3fd1c0597807580cf89cc4ad3861304a611145"
+  integrity sha512-IBX7xQMnLqsJJo+pKRqA3qcATA00W6ZDMIXOKZ3hCFdI380vG36FLNNm2qq62/mKRERQpP1ybp+POMqOjza0Jg==
+  dependencies:
+    axios "^0.21.1"
+    qs "^6.9.4"
 
 sprintf-js@~1.0.2:
   version "1.0.3"

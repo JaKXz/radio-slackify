@@ -1,18 +1,8 @@
 import {useState, useEffect, useMemo} from 'react';
 import styles from './search-box.module.css';
-import SpotifyWebApi from 'spotify-web-api-js';
 import {useMutation, gql} from '@apollo/client';
-
-type UnPromisify<T> = T extends Promise<infer U> ? U : T;
-type PropType<TObj, TProp extends keyof TObj> = TObj[TProp];
-
-type SearchTracks = PropType<
-  InstanceType<typeof SpotifyWebApi>,
-  'searchTracks'
->;
-type TrackSerachResponse = UnPromisify<ReturnType<SearchTracks>>;
-type Tracks = PropType<TrackSerachResponse, 'tracks'>;
-type Track = PropType<Tracks, 'items'>[number];
+import {SpotifyWebApi} from 'spotify-web-api-ts';
+import {Track} from 'spotify-web-api-ts/types/types/SpotifyObjects';
 
 export default function SearchBox({
   spotifyToken,
@@ -22,13 +12,13 @@ export default function SearchBox({
   stationId: number;
 }) {
   const [searchText, setSearchText] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const [isSearching, setSearching] = useState(false);
+  const [isVisible, setVisible] = useState(false);
 
   const spotifyApi = useMemo(() => new SpotifyWebApi(), []);
 
   useEffect(() => {
     spotifyApi.setAccessToken(spotifyToken);
-    // spotifyApi.pl
   }, [spotifyApi]);
 
   const [tracks, setTracks] = useState([] as Track[]);
@@ -36,39 +26,64 @@ export default function SearchBox({
   useEffect(() => {
     if (searchText.length > 2 && !isSearching) {
       const search = async () => {
-        const result = await spotifyApi.searchTracks(searchText, {limit: 5});
-        setTracks(result.tracks.items);
-        setIsSearching(false);
+        const result = await spotifyApi.search.searchTracks(searchText, {
+          limit: 5,
+        });
+        setTracks(result.items);
+        setSearching(false);
+        // setVisible(false);
       };
-      setIsSearching(true);
+      setSearching(true);
       search();
     } else if (searchText.length <= 2) {
       setTracks([]);
     }
   }, [searchText]);
 
+  useEffect(() => {
+    const handler = (e: MouseEvent) => setVisible(false);
+    if (isVisible) {
+      window.addEventListener('click', handler);
+    } else {
+      window.removeEventListener('click', handler);
+    }
+    return () => window.removeEventListener('click', handler);
+  }, [isVisible]);
+
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
       <input
         className={styles.searchTextBox}
         onChange={(e) => setSearchText(e.currentTarget.value)}
         value={searchText}
+        onFocus={() => setVisible(true)}
         // disabled={isSearching}
       />
-      <ul className={styles.pullDownList}>
-        {tracks.map((track) => {
-          return (
-            <li className={styles.pullDownListItem} key={track.uri}>
-              <TrackCard track={track} stationId={stationId} />
-            </li>
-          );
-        })}
-      </ul>
+      {isVisible && (
+        <ul className={styles.pullDownList}>
+          {tracks.map((track) => {
+            return (
+              <li className={styles.pullDownListItem} key={track.uri}>
+                <TrackCard
+                  track={track}
+                  stationId={stationId}
+                  onAppendTrack={() => setVisible(false)}
+                />
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
 
-const Append_Track_To_Playlist = gql`
+const APPEND_TRACK = gql`
   mutation AppendTrackToPlaylist(
     $stationId: ID!
     $name: String!
@@ -87,9 +102,17 @@ const Append_Track_To_Playlist = gql`
   }
 `;
 
-const TrackCard = ({track, stationId}: {track: Track; stationId: number}) => {
+const TrackCard = ({
+  track,
+  stationId,
+  onAppendTrack,
+}: {
+  track: Track;
+  stationId: number;
+  onAppendTrack: () => void;
+}) => {
   const [active, setActive] = useState(false);
-  const [appendTrack, {loading, error}] = useMutation(Append_Track_To_Playlist);
+  const [appendTrack, {loading, error}] = useMutation(APPEND_TRACK);
   const artist = track.artists[0];
   const image = track.album.images[track.album.images.length - 1];
 
@@ -111,21 +134,23 @@ const TrackCard = ({track, stationId}: {track: Track; stationId: number}) => {
         src={image.url}
       />
       {active && (
-        <a
+        <button
           className={styles.trackCardAddButton}
-          onClick={() =>
-            appendTrack({
+          onClick={async (e) => {
+            e.preventDefault();
+            await appendTrack({
               variables: {
                 stationId,
                 name: track.name,
                 lengthInSeconds: Math.round(track.duration_ms / 1000),
                 spotifyURI: track.uri,
               },
-            })
-          }
+            });
+            onAppendTrack();
+          }}
         >
           <Plus />
-        </a>
+        </button>
       )}
     </div>
   );

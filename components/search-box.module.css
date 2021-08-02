@@ -39,6 +39,7 @@
   position: relative;
   display: block;
   cursor: pointer;
+  background-color: #fff;
 }
 
 .trackCard:hover {
@@ -87,6 +88,9 @@
   padding: 0 3px;
   height: 100%;
   text-align: center;
+  display: inline;
+  border: 0;
+  background: none;
 }
 
 .trackCardAddButton:hover {
