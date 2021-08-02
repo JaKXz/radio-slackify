@@ -11,7 +11,13 @@ type Mutation {
   ): Track!
 }
 
+type Playback {
+  timeElapsedInSeconds: Int!
+  track: Track!
+}
+
 type Query {
+  playback(stationId: ID!): Playback
   stations(id: ID): [Station!]!
   tracks(from: String!, stationId: ID!, to: String): [Track!]!
 }

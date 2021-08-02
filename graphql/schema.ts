@@ -1,13 +1,20 @@
-import {makeSchema, nullable, objectType, queryType, extendType} from 'nexus';
+import {
+  makeSchema,
+  nullable,
+  objectType,
+  queryType,
+  extendType,
+  list,
+} from 'nexus';
 import {join} from 'path';
-import {add, format, max} from 'date-fns';
+import {add, differenceInSeconds, max} from 'date-fns';
 import {Station as StationModel} from '.prisma/client';
 import {Context} from './context';
 
 const Query = queryType({
   definition(t) {
-    t.list.field('stations', {
-      type: 'Station',
+    t.field('stations', {
+      type: list('Station'),
       args: {
         id: nullable('ID'),
       },
@@ -20,8 +27,8 @@ const Query = queryType({
       },
     });
 
-    t.list.field('tracks', {
-      type: 'Track',
+    t.field('tracks', {
+      type: list('Track'),
       args: {
         stationId: 'ID',
         from: 'String',
@@ -46,6 +53,30 @@ const Query = queryType({
         return ctx.prisma.track.findMany({
           where: whereClause,
         });
+      },
+    });
+
+    t.field('playback', {
+      type: nullable('Playback'),
+      args: {
+        stationId: 'ID',
+      },
+      async resolve(_root, args, ctx) {
+        const now = new Date();
+        const track = await ctx.prisma.track.findFirst({
+          where: {
+            stationId: parseInt(args.stationId),
+            playAt: {lte: now},
+            endAt: {gte: now},
+          },
+        });
+        if (track) {
+          return {
+            track,
+            timeElapsedInSeconds: differenceInSeconds(now, track.playAt),
+          };
+        }
+        return null;
       },
     });
   },
@@ -161,8 +192,20 @@ const Track = objectType({
   },
 });
 
+const Playback = objectType({
+  name: 'Playback',
+  definition(t) {
+    t.field('timeElapsedInSeconds', {
+      type: 'Int',
+    });
+    t.field('track', {
+      type: 'Track',
+    });
+  },
+});
+
 export const schema = makeSchema({
-  types: [Query, Mutation, Station, StationMeta, Track],
+  types: [Query, Mutation, Station, StationMeta, Track, Playback],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),

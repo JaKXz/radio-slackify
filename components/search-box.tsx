@@ -28,7 +28,8 @@ export default function SearchBox({
 
   useEffect(() => {
     spotifyApi.setAccessToken(spotifyToken);
-  }, []);
+    // spotifyApi.pl
+  }, [spotifyApi]);
 
   const [tracks, setTracks] = useState([] as Track[]);
 

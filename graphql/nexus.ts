@@ -24,6 +24,11 @@ export interface NexusGenScalars {
 
 export interface NexusGenObjects {
   Mutation: {};
+  Playback: {
+    // root type
+    timeElapsedInSeconds: number; // Int!
+    track: NexusGenRootTypes['Track']; // Track!
+  };
   Query: {};
   Station: prisma.Station;
   StationMeta: {
@@ -47,8 +52,14 @@ export interface NexusGenFieldTypes {
     createStation: NexusGenRootTypes['Station']; // Station!
     createTrack: NexusGenRootTypes['Track']; // Track!
   };
+  Playback: {
+    // field return type
+    timeElapsedInSeconds: number; // Int!
+    track: NexusGenRootTypes['Track']; // Track!
+  };
   Query: {
     // field return type
+    playback: NexusGenRootTypes['Playback'] | null; // Playback
     stations: NexusGenRootTypes['Station'][]; // [Station!]!
     tracks: NexusGenRootTypes['Track'][]; // [Track!]!
   };
@@ -79,8 +90,14 @@ export interface NexusGenFieldTypeNames {
     createStation: 'Station';
     createTrack: 'Track';
   };
+  Playback: {
+    // field return type name
+    timeElapsedInSeconds: 'Int';
+    track: 'Track';
+  };
   Query: {
     // field return type name
+    playback: 'Playback';
     stations: 'Station';
     tracks: 'Track';
   };
@@ -120,6 +137,10 @@ export interface NexusGenArgTypes {
     };
   };
   Query: {
+    playback: {
+      // args
+      stationId: string; // ID!
+    };
     stations: {
       // args
       id?: string | null; // ID
