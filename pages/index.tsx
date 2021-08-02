@@ -123,7 +123,7 @@ export default function Home() {
             autoPlay
           />
         )}
-        <SearchBox spotifyToken={spotifyToken} stationId={3} />
+        <SearchBox spotifyToken={spotifyToken} stationId={1} />
       </main>
 
       <footer className={styles.footer}>
