@@ -64,6 +64,7 @@ export interface NexusGenFieldTypes {
   };
   Track: {
     // field return type
+    endAt: string | null; // String
     id: string; // ID!
     lengthInSeconds: number; // Int!
     name: string; // String!
@@ -95,6 +96,7 @@ export interface NexusGenFieldTypeNames {
   };
   Track: {
     // field return type name
+    endAt: 'String';
     id: 'ID';
     lengthInSeconds: 'Int';
     name: 'String';

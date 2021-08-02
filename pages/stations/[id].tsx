@@ -1,12 +1,14 @@
 import Head from 'next/head';
 import useSpotifyToken from '../../hooks/use-spotify-token';
-import {gql} from '@apollo/client';
+import {useQuery, gql} from '@apollo/client';
 import client from '../../graphql/apollo-client';
 import {NexusGenFieldTypes} from '../../graphql/nexus';
 import {GetStaticProps} from 'next';
 import {ParsedUrlQuery} from 'querystring';
 import {Station as StationType} from '@prisma/client';
 import SearchBox from '../../components/search-box';
+import SpotifyWebPlayer from 'react-spotify-web-playback';
+import {useState, useEffect} from 'react';
 
 type Query = NexusGenFieldTypes['Query'];
 
@@ -22,8 +24,40 @@ const GET_STATION_LIST = gql`
   }
 `;
 
+const GET_PLAY_LIST = gql`
+  query StationPlaylist($stationId: ID!, $from: String!) {
+    stations(id: $stationId) {
+      id
+      meta {
+        name
+      }
+    }
+    tracks(from: $from, stationId: $stationId) {
+      id
+      name
+      lengthInSeconds
+      spotifyURI
+      playAt
+      endAt
+    }
+  }
+`;
+
 export default function Station({station}: {station: StationType}) {
   const {spotifyToken} = useSpotifyToken();
+  const now = new Date('2021-07-23T00:00:00Z');
+  const {loading, error, data} = useQuery<Query>(GET_PLAY_LIST, {
+    variables: {
+      stationId: station.id,
+      from: now.toISOString(),
+    },
+    pollInterval: 2000,
+  });
+
+  console.log(data, error);
+  // const now = new Date('2021-07-23T00:00:00Z');
+  const [currentTrack, setCurrentTrack] = useState<any>({});
+
   return (
     <div>
       <Head>
@@ -32,6 +66,12 @@ export default function Station({station}: {station: StationType}) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       Station - {station.name}
+      {/* <SpotifyWebPlayer
+          token={spotifyToken}
+          uris={currentTrack ? [currentTrack.spotifyURI] : []}
+          initialVolume={0.5}
+          autoPlay
+        /> */}
       <SearchBox spotifyToken={spotifyToken} stationId={station.id} />
     </div>
   );

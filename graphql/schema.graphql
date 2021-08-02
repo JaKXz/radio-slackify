@@ -27,6 +27,7 @@ type StationMeta {
 }
 
 type Track {
+  endAt: String
   id: ID!
   lengthInSeconds: Int!
   name: String!
