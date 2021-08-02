@@ -1,17 +1,20 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {useRouter} from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
 import {parse} from 'query-string';
 import {gql, useQuery} from '@apollo/client';
-import {add} from 'date-fns';
+import {add, differenceInSeconds} from 'date-fns';
+import SpotifyWebPlayer from 'react-spotify-web-playback';
 
 import useLocalStorage from '../hooks/use-local-storage';
 import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
-import SpotifyWebPlayer from 'react-spotify-web-playback';
+import SearchBox from '../components/search-box';
+import SpotifyWebApi from 'spotify-web-api-js';
 
 export default function Home() {
+  const now = new Date('2021-07-23T00:00:00Z');
   const router = useRouter();
   const [spotifyTokenExpiry, setSpotifyTokenExpiry] = useLocalStorage(
     'spotifyTokenExpiry',
@@ -20,24 +23,26 @@ export default function Home() {
   const [spotifyToken, setSpotifyToken] = useLocalStorage('spotifyToken', '');
   const {data, loading, error} = useQuery(
     gql`
-      {
-        stations(id: "2") {
+      query StationPlaylist($stationId: ID!, $from: String!) {
+        stations(id: $stationId) {
           id
           meta {
             name
           }
         }
-        tracks(from: "2021-07-22T00:44:00Z", stationId: "2") {
+        tracks(from: $from, stationId: $stationId) {
           id
           name
           lengthInSeconds
           spotifyURI
           playAt
+          endAt
         }
       }
     `,
     {
-      pollInterval: 10000,
+      variables: {stationId: '1', from: now.toISOString()},
+      pollInterval: 2000,
     },
   );
 
@@ -56,37 +61,44 @@ export default function Home() {
   }, [router, setSpotifyToken, setSpotifyTokenExpiry]);
 
   useEffect(() => {
+    const now = new Date();
     if (!loading && data) {
       setCurrentTrack((prev: any) => {
-        const now = new Date();
         if (prev) {
           const playAt = new Date(prev.playAt);
-          const endAt = add(playAt, {
-            seconds: prev.lengthInSeconds,
-          });
+          const endAt = new Date(prev.endAt);
 
           if (playAt <= now && now < endAt) {
+            console.log('still on same track:', prev);
+            const spotifyApi = new SpotifyWebApi();
+            spotifyApi.setAccessToken(spotifyToken);
+            const seekTo = differenceInSeconds(now, new Date(prev.playAt));
+            console.log('now', now, 'playAt', prev.playAt, 'seek to', seekTo);
+            spotifyApi.seek(seekTo * 1000);
+            spotifyApi.play();
             return prev;
           }
         }
 
-        for (let i = data.tracks.length - 1; i >= 0; i--) {
-          const track = data.tracks[i];
+        let newTrack;
+        for (const track of data.tracks) {
+          // const track = data.tracks[i];
           const playAt = new Date(track.playAt);
+          const endAt = new Date(track.endAt);
 
-          if (playAt < now) {
-            return track;
+          if (playAt < now && now < endAt) {
+            newTrack = track;
           }
         }
+        return newTrack;
       });
     }
   }, [data, loading]);
-
   if (error) {
-    console.log(error);
+    console.log('error!', error);
   }
 
-  console.log(currentTrack);
+  console.log('current track', currentTrack);
 
   return (
     <div className={styles.container}>
@@ -101,6 +113,8 @@ export default function Home() {
           <a className={styles.SignIn} href={spotifyLoginUrl}>
             Login to Spotify
           </a>
+        ) : !currentTrack ? (
+          <p>Nope</p>
         ) : (
           <SpotifyWebPlayer
             token={spotifyToken}
@@ -109,6 +123,7 @@ export default function Home() {
             autoPlay
           />
         )}
+        <SearchBox spotifyToken={spotifyToken} stationId={3} />
       </main>
 
       <footer className={styles.footer}>
