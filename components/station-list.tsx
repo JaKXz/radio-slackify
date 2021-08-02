@@ -1,14 +1,10 @@
 import {useState, useEffect} from 'react';
-import SpotifyWebApi from 'spotify-web-api-js';
 import {useQuery, gql} from '@apollo/client';
 import {NexusGenFieldTypes} from '../graphql/nexus';
 import Link from 'next/link';
+import {Station} from '@prisma/client';
 
 type Query = NexusGenFieldTypes['Query'];
-type Station = {
-  id: number;
-  name: string;
-};
 
 const GET_STATION_LIST = gql`
   query Query {
