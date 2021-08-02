@@ -10,6 +10,10 @@ export default function useSpotifyToken(initialValue = '') {
     0,
   );
   const [spotifyToken, setSpotifyToken] = useLocalStorage('spotifyToken', '');
+  const deleteToken = () => {
+    setSpotifyTokenExpiry(0);
+    setSpotifyToken('');
+  };
 
   useEffect(() => {
     if (router.asPath.includes('access_token')) {
@@ -27,5 +31,6 @@ export default function useSpotifyToken(initialValue = '') {
     spotifyToken,
     spotifyTokenExpiry,
     isSpotifyTokenExpired: spotifyTokenExpiry < Date.now(),
+    deleteToken,
   } as const;
 }

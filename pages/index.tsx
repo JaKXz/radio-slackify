@@ -7,7 +7,7 @@ import styles from '../styles/Home.module.css';
 import {useState, useEffect} from 'react';
 
 export default function Home({spotifyLoginUrl}: {spotifyLoginUrl: string}) {
-  const {isSpotifyTokenExpired} = useSpotifyToken();
+  const {isSpotifyTokenExpired, deleteToken} = useSpotifyToken();
   const [isTokenExpired, setTokenExpired] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,18 @@ export default function Home({spotifyLoginUrl}: {spotifyLoginUrl: string}) {
           <div>
             Logged in to Spotify ✅
             <br />
+            <br />
             <StationList />
+            <br />
+            <br />
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                deleteToken();
+              }}
+            >
+              Logout
+            </button>
           </div>
         )}
       </main>
