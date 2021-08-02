@@ -104,7 +104,7 @@ export default function Home() {
         ) : (
           <SpotifyWebPlayer
             token={spotifyToken}
-            uris={[currentTrack.spotifyURI]}
+            uris={currentTrack ? [currentTrack.spotifyURI] : []}
             initialVolume={0.5}
             autoPlay
           />
