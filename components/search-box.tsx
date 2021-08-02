@@ -3,16 +3,16 @@ import styles from './search-box.module.css';
 import SpotifyWebApi from 'spotify-web-api-js';
 import {useMutation, gql} from '@apollo/client';
 
-type Track = {
-  name: string;
-  artistName: string;
-  albumName: string;
-  albumImageSrc?: string;
-  albumImageHeight?: number;
-  albumImageWidth?: number;
-  lengthInSeconds: number;
-  spotifyURI: string;
-};
+type UnPromisify<T> = T extends Promise<infer U> ? U : T;
+type PropType<TObj, TProp extends keyof TObj> = TObj[TProp];
+
+type SearchTracks = PropType<
+  InstanceType<typeof SpotifyWebApi>,
+  'searchTracks'
+>;
+type TrackSerachResponse = UnPromisify<ReturnType<SearchTracks>>;
+type Tracks = PropType<TrackSerachResponse, 'tracks'>;
+type Track = PropType<Tracks, 'items'>[number];
 
 export default function SearchBox({
   spotifyToken,
@@ -23,7 +23,6 @@ export default function SearchBox({
 }) {
   const [searchText, setSearchText] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [tracks, setTracks] = useState([] as Track[]);
 
   const spotifyApi = useMemo(() => new SpotifyWebApi(), []);
 
@@ -31,26 +30,13 @@ export default function SearchBox({
     spotifyApi.setAccessToken(spotifyToken);
   }, []);
 
+  const [tracks, setTracks] = useState([] as Track[]);
+
   useEffect(() => {
     if (searchText.length > 2 && !isSearching) {
       const search = async () => {
         const result = await spotifyApi.searchTracks(searchText, {limit: 5});
-        setTracks(
-          result.tracks.items.map((item) => {
-            const image = item.album.images[item.album.images.length - 1];
-            const artist = item.artists[0];
-            return {
-              name: item.name,
-              artistName: artist.name,
-              lengthInSeconds: Math.round(item.duration_ms / 1000),
-              spotifyURI: item.uri,
-              albumImageSrc: image.url,
-              albumImageHeight: image.height,
-              albumImageWidth: image.width,
-              albumName: item.album.name,
-            };
-          }),
-        );
+        setTracks(result.tracks.items);
         setIsSearching(false);
       };
       setIsSearching(true);
@@ -71,7 +57,7 @@ export default function SearchBox({
       <ul className={styles.pullDownList}>
         {tracks.map((track) => {
           return (
-            <li className={styles.pullDownListItem}>
+            <li className={styles.pullDownListItem} key={track.uri}>
               <TrackCard track={track} stationId={stationId} />
             </li>
           );
@@ -100,26 +86,13 @@ const Append_Track_To_Playlist = gql`
   }
 `;
 
-const TrackCard = ({
-  track: {
-    name,
-    artistName,
-    albumName,
-    albumImageSrc,
-    albumImageHeight,
-    albumImageWidth,
-    lengthInSeconds,
-    spotifyURI,
-  },
-  stationId,
-}: {
-  track: Track;
-  stationId: number;
-}) => {
+const TrackCard = ({track, stationId}: {track: Track; stationId: number}) => {
   const [active, setActive] = useState(false);
   const [appendTrack, {loading, error}] = useMutation(Append_Track_To_Playlist);
+  const artist = track.artists[0];
+  const image = track.album.images[track.album.images.length - 1];
 
-  console.log(loading, error);
+  // console.log(loading, error);
   return (
     <div
       className={styles.trackCard}
@@ -128,13 +101,13 @@ const TrackCard = ({
     >
       {loading && <div className={styles.loadingMessage}>Adding...</div>}
       <span className={styles.trackCardTextContainer}>
-        <span className={styles.trackCardName}>{name}</span>
-        <span className={styles.trackCardArtistName}>{artistName}</span>
+        <span className={styles.trackCardName}>{track.name}</span>
+        <span className={styles.trackCardArtistName}>{artist.name}</span>
       </span>
       <img
         className={styles.trackCardAlbumImage}
-        alt={albumName}
-        src={albumImageSrc}
+        alt={track.album.name}
+        src={image.url}
       />
       {active && (
         <a
@@ -143,9 +116,9 @@ const TrackCard = ({
             appendTrack({
               variables: {
                 stationId,
-                name,
-                lengthInSeconds,
-                spotifyURI,
+                name: track.name,
+                lengthInSeconds: Math.round(track.duration_ms / 1000),
+                spotifyURI: track.uri,
               },
             })
           }
