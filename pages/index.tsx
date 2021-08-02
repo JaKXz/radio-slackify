@@ -4,9 +4,15 @@ import useSpotifyToken from '../hooks/use-spotify-token';
 import StationList from '../components/station-list';
 import {spotifyLoginUrl} from '../auth/spotify';
 import styles from '../styles/Home.module.css';
+import {useState, useEffect} from 'react';
 
-export default function Home() {
+export default function Home({spotifyLoginUrl}: {spotifyLoginUrl: string}) {
   const {isSpotifyTokenExpired} = useSpotifyToken();
+  const [isTokenExpired, setTokenExpired] = useState(false);
+
+  useEffect(() => {
+    setTokenExpired(isSpotifyTokenExpired);
+  }, [isSpotifyTokenExpired]);
 
   return (
     <div className={styles.container}>
@@ -17,7 +23,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        {isSpotifyTokenExpired ? (
+        {isTokenExpired ? (
           <a className={styles.SignIn} href={spotifyLoginUrl}>
             Login to Spotify
           </a>
@@ -44,4 +50,12 @@ export default function Home() {
       </footer>
     </div>
   );
+}
+
+export function getStaticProps() {
+  return {
+    props: {
+      spotifyLoginUrl,
+    },
+  };
 }
