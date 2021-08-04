@@ -52,6 +52,8 @@ const Query = queryType({
         }
         return ctx.prisma.track.findMany({
           where: whereClause,
+          orderBy: [{playAt: 'desc'}],
+          take: 5,
         });
       },
     });
