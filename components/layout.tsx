@@ -6,5 +6,5 @@ type Props = {
 };
 
 export default function Layout({children}: Props) {
-  return <div>ss{children}</div>;
+  return <div>{children}</div>;
 }

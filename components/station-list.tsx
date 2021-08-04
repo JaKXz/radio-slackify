@@ -19,7 +19,9 @@ const GET_STATION_LIST = gql`
 `;
 
 export default function StationList() {
-  const {loading, error, data} = useQuery<Query>(GET_STATION_LIST);
+  const {loading, error, data} = useQuery<Query>(GET_STATION_LIST, {
+    // pollInterval: 5000
+  });
   const [stations, setStations] = useState([] as Station[]);
 
   useEffect(() => {
