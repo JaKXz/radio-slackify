@@ -43,6 +43,9 @@ export default function PlayList({stationId}: {stationId: Number}) {
         <li key={item.id}>
           <h3>{item.name}</h3>
           <p>Play at: {format(new Date(item.playAt), 'MMM dd, yyyy ah:m:s')}</p>
+          {item.endAt && (
+            <p>End at: {format(new Date(item.endAt), 'MMM dd, yyyy ah:m:s')}</p>
+          )}
         </li>
       ))}
     </ul>
