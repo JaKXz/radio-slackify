@@ -25,8 +25,7 @@ const GET_STATION_LIST = gql`
 `;
 
 export default function Station({station}: {station: StationType}) {
-  const {spotifyToken} = useSpotifyToken();
-
+  const {token, expiry} = useSpotifyToken();
   return (
     <div>
       <Head>
@@ -35,9 +34,9 @@ export default function Station({station}: {station: StationType}) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1>Station - {station.name}</h1>
-      <Player stationId={station.id} />
-      <SearchBox spotifyToken={spotifyToken} stationId={station.id} />
-      <PlayList stationId={station.id} />
+      <Player spotifyToken={token} stationId={station.id} />
+      <SearchBox spotifyToken={token} stationId={station.id} />
+      <PlayList spotifyToken={token} stationId={station.id} />
     </div>
   );
 }

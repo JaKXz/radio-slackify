@@ -1,4 +1,3 @@
-import useSpotifyToken from '../hooks/use-spotify-token';
 import {useQuery, gql} from '@apollo/client';
 import {NexusGenFieldTypes} from '../graphql/nexus';
 import {useState, useEffect, useMemo} from 'react';
@@ -20,8 +19,13 @@ const GET_PLAY_LIST = gql`
   }
 `;
 
-export default function PlayList({stationId}: {stationId: Number}) {
-  //   const {spotifyToken} = useSpotifyToken();
+export default function PlayList({
+  spotifyToken,
+  stationId,
+}: {
+  spotifyToken: string;
+  stationId: number;
+}) {
   const {loading, error, data} = useQuery<Query>(GET_PLAY_LIST, {
     variables: {
       stationId,

@@ -7,7 +7,8 @@ import {useState, useEffect} from 'react';
 import Layout from '../components/layout';
 
 export default function Home() {
-  const {deleteToken} = useSpotifyToken();
+  // const {token} = useSpotifyToken();
+  // console.log(token);
   // const [isTokenExpired, setTokenExpired] = useState(false);
 
   // const now = new Date('2021-07-23T00:00:00Z');

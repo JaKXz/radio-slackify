@@ -1,4 +1,3 @@
-import useSpotifyToken from '../hooks/use-spotify-token';
 import {useQuery, gql} from '@apollo/client';
 import {NexusGenFieldTypes} from '../graphql/nexus';
 import {useState, useEffect} from 'react';
@@ -24,8 +23,14 @@ const GET_PLAYBACK = gql`
   }
 `;
 
-export default function Player({stationId}: {stationId: Number}) {
-  const {spotifyToken, isSpotifyTokenExpired} = useSpotifyToken();
+export default function Player({
+  spotifyToken,
+  stationId,
+}: {
+  spotifyToken: string;
+  stationId: number;
+}) {
+  // const {spotifyToken, isSpotifyTokenExpired} = useSpotifyToken();
   const {loading, error, data} = useQuery<Query>(GET_PLAYBACK, {
     variables: {
       stationId,
@@ -42,12 +47,10 @@ export default function Player({stationId}: {stationId: Number}) {
   }, [data]);
 
   useEffect(() => {
-    if (!isSpotifyTokenExpired && spotifyToken) {
-      loadActions(spotifyToken).then((actions) => {
-        setActions(actions);
-      });
-    }
-  }, [spotifyToken, isSpotifyTokenExpired]);
+    loadActions(spotifyToken).then((actions) => {
+      setActions(actions);
+    });
+  }, []);
 
   useEffect(() => {
     if (playback && playback.track.spotifyURI && actions) {

@@ -21,14 +21,12 @@ export type SpofityLoginParams = {
 };
 
 export const spotifyLoginParams: SpofityLoginParams = {
-  client_id: process.env.SPOTIFY_CLIENT_ID,
+  client_id: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
   response_type: 'token',
   redirect_uri: `http://localhost:3000/api/spotify-callback`,
   scope: scopes.join('%20'),
   state: '',
 };
 
-export const spofityTokenStateSecret = process.env.SPOTIFY_TOKEN_STATE_SECRET;
-
-export const createSpotifyLoginUrl = (params: SpofityLoginParams) =>
-  `${authEndpoint}?${stringify(params)}`;
+export const createSpotifyLoginUrl = (state: string = '') =>
+  `${authEndpoint}?${stringify({...spotifyLoginParams, state})}`;
