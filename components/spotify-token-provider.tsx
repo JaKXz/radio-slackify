@@ -31,16 +31,12 @@ export default function SpotifyTokenProvider({children}: Props) {
   const [tokenState, setTokenState] = useState('');
   const router = useRouter();
   const [tokenError, setTokenError] = useState('');
-  const [isProceccing, setProceccing] = useState(true);
 
   useEffect(() => {
-    if (token && expiry) {
-      setProceccing(false);
-    } else if (!secret) {
+    if (!secret) {
       setSecret(uniqid());
     } else {
       setTokenState(jwt.sign({redirectTo: router.asPath}, secret));
-      setProceccing(false);
     }
 
     if (router.asPath.includes('access_token')) {
@@ -53,24 +49,24 @@ export default function SpotifyTokenProvider({children}: Props) {
         };
         setToken(access_token as string);
         setExpiry(Number(expires_in) * 1000 + Date.now());
-        console.log(payload);
+        // console.log(payload);
         router.replace(payload.redirectTo);
       } catch (error) {
         console.error(error);
         setTokenError('Failed to get an access token.');
       }
     }
-  }, [router, secret, token, expiry]);
+  }, [router, secret]);
 
-  if (isProceccing) {
-    return (
-      <Layout>
-        <div className={styles.container}>
-          <main className={styles.main}>Plear wait...</main>
-        </div>
-      </Layout>
-    );
-  }
+  // if (isProceccing) {
+  //   return (
+  //     <Layout>
+  //       <div className={styles.container}>
+  //         <main className={styles.main}>Plear wait...</main>
+  //       </div>
+  //     </Layout>
+  //   );
+  // }
 
   return token && tokenState ? (
     <Provider value={{token, expiry}}>{children}</Provider>
