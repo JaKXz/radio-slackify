@@ -12,10 +12,23 @@ const scopes: string[] = [
   'user-read-playback-state',
 ];
 
-export const spotifyLoginUrl = `${authEndpoint}?${stringify({
+export type SpofityLoginParams = {
+  client_id?: string;
+  response_type: string;
+  redirect_uri: string;
+  scope: string;
+  state: string;
+};
+
+export const spotifyLoginParams: SpofityLoginParams = {
   client_id: process.env.SPOTIFY_CLIENT_ID,
   response_type: 'token',
   redirect_uri: `http://localhost:3000/api/spotify-callback`,
   scope: scopes.join('%20'),
-  state: '123',
-})}`;
+  state: '',
+};
+
+export const spofityTokenStateSecret = process.env.SPOTIFY_TOKEN_STATE_SECRET;
+
+export const createSpotifyLoginUrl = (params: SpofityLoginParams) =>
+  `${authEndpoint}?${stringify(params)}`;
