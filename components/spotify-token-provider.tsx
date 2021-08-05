@@ -30,13 +30,17 @@ export default function SpotifyTokenProvider({children}: Props) {
   const [secret, setSecret] = useLocalStorage('spotify_token_state_secret', '');
   const [tokenState, setTokenState] = useState('');
   const router = useRouter();
+  const [tokenError, setTokenError] = useState('');
+  const [isProceccing, setProceccing] = useState(true);
 
   useEffect(() => {
-    console.log(111);
-    if (!secret) {
+    if (token && expiry) {
+      setProceccing(false);
+    } else if (!secret) {
       setSecret(uniqid());
     } else {
       setTokenState(jwt.sign({redirectTo: router.asPath}, secret));
+      setProceccing(false);
     }
 
     if (router.asPath.includes('access_token')) {
@@ -53,9 +57,20 @@ export default function SpotifyTokenProvider({children}: Props) {
         router.replace(payload.redirectTo);
       } catch (error) {
         console.error(error);
+        setTokenError('Failed to get an access token.');
       }
     }
-  }, [router, secret]);
+  }, [router, secret, token, expiry]);
+
+  if (isProceccing) {
+    return (
+      <Layout>
+        <div className={styles.container}>
+          <main className={styles.main}>Plear wait...</main>
+        </div>
+      </Layout>
+    );
+  }
 
   return token && tokenState ? (
     <Provider value={{token, expiry}}>{children}</Provider>
@@ -63,6 +78,7 @@ export default function SpotifyTokenProvider({children}: Props) {
     <Layout>
       <div className={styles.container}>
         <main className={styles.main}>
+          {tokenError && <p>{tokenError}</p>}
           <a className={styles.SignIn} href={createSpotifyLoginUrl(tokenState)}>
             Login to Spotify
           </a>
