@@ -3,10 +3,11 @@ import useLocalStorage from '../hooks/use-local-storage';
 import {useRouter} from 'next/router';
 import {parse} from 'query-string';
 import jwt from 'jsonwebtoken';
-import uniqid from 'uniqid';
-import Layout from './layout';
-import styles from '../styles/Home.module.css';
-import {createSpotifyLoginUrl} from '../auth/spotify';
+// import uniqid from 'uniqid';
+// import Layout from './layout';
+// import styles from '../styles/Home.module.css';
+// import {createSpotifyLoginUrl} from '../auth/spotify';
+import Login from './login';
 
 type Props = {
   children?: ReactNode;
@@ -22,24 +23,16 @@ export const SpotifyTokenContext = createContext<TokenData>({
   expiry: 0,
 });
 
-const {Provider, Consumer} = SpotifyTokenContext;
-
 export default function SpotifyTokenProvider({children}: Props) {
   const [token, setToken] = useLocalStorage('spotify_token', '');
   const [expiry, setExpiry] = useLocalStorage('spotify_token_expiry', 0);
   const [secret, setSecret] = useLocalStorage('spotify_token_state_secret', '');
-  const [tokenState, setTokenState] = useState('');
-  const router = useRouter();
+  const [isTokenValid, setTokenValid] = useState(false);
   const [tokenError, setTokenError] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
-    if (!secret) {
-      setSecret(uniqid());
-    } else {
-      setTokenState(jwt.sign({redirectTo: router.asPath}, secret));
-    }
-
-    if (router.asPath.includes('access_token')) {
+    if (router.asPath.includes('access_token') && secret) {
       const {access_token, expires_in, state} = parse(
         router.asPath.replace(/\//g, ''),
       );
@@ -49,7 +42,6 @@ export default function SpotifyTokenProvider({children}: Props) {
         };
         setToken(access_token as string);
         setExpiry(Number(expires_in) * 1000 + Date.now());
-        // console.log(payload);
         router.replace(payload.redirectTo);
       } catch (error) {
         console.error(error);
@@ -58,28 +50,29 @@ export default function SpotifyTokenProvider({children}: Props) {
     }
   }, [router, secret]);
 
-  // if (isProceccing) {
-  //   return (
-  //     <Layout>
-  //       <div className={styles.container}>
-  //         <main className={styles.main}>Plear wait...</main>
-  //       </div>
-  //     </Layout>
-  //   );
-  // }
+  useEffect(() => {
+    const timeLeft = expiry - Date.now();
+    if (token && timeLeft > 0) {
+      setTokenValid(true);
+      // console.log(timeLeft / 1000);
+      setTimeout(() => {
+        setTokenValid(false);
+      }, timeLeft);
+    }
+  }, [expiry, token]);
 
-  return token && tokenState ? (
-    <Provider value={{token, expiry}}>{children}</Provider>
-  ) : (
-    <Layout>
-      <div className={styles.container}>
-        <main className={styles.main}>
-          {tokenError && <p>{tokenError}</p>}
-          <a className={styles.SignIn} href={createSpotifyLoginUrl(tokenState)}>
-            Login to Spotify
-          </a>
-        </main>
+  // console.log(token, expiry, secret, tokenState);
+  if (isTokenValid)
+    return (
+      <SpotifyTokenContext.Provider value={{token, expiry}}>
+        {children}
+      </SpotifyTokenContext.Provider>
+    );
+  else
+    return (
+      <div>
+        {tokenError && <p>{tokenError}</p>}
+        <Login redirectTo={router.asPath} />
       </div>
-    </Layout>
-  );
+    );
 }
