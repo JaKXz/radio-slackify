@@ -64,7 +64,6 @@ export default function SpotifyTokenProvider({children}: Props) {
     }
   }, [expiry, token, timeLeft]);
 
-  // console.log(token, expiry, secret, tokenState);
   if (isTokenValid)
     return (
       <SpotifyTokenContext.Provider value={{token, expiry}}>

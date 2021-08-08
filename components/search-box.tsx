@@ -1,32 +1,20 @@
-import {useState, useEffect, useMemo} from 'react';
+import {useState, useEffect} from 'react';
 import styles from './search-box.module.css';
 import {useMutation, gql} from '@apollo/client';
-import {SpotifyWebApi} from 'spotify-web-api-ts';
 import {Track} from 'spotify-web-api-ts/types/types/SpotifyObjects';
+import useSpotifyApis from '../hooks/use-spotify-apis';
 
-export default function SearchBox({
-  spotifyToken,
-  stationId,
-}: {
-  spotifyToken: string;
-  stationId: number;
-}) {
+export default function SearchBox({stationId}: {stationId: number}) {
   const [searchText, setSearchText] = useState('');
   const [isSearching, setSearching] = useState(false);
   const [isVisible, setVisible] = useState(false);
-
-  const spotifyApi = useMemo(() => new SpotifyWebApi(), []);
-
-  useEffect(() => {
-    spotifyApi.setAccessToken(spotifyToken);
-  }, [spotifyApi]);
-
+  const {webApi} = useSpotifyApis();
   const [tracks, setTracks] = useState([] as Track[]);
 
   useEffect(() => {
-    if (searchText.length > 2 && !isSearching) {
+    if (searchText.length > 2 && !isSearching && webApi) {
       const search = async () => {
-        const result = await spotifyApi.search.searchTracks(searchText, {
+        const result = await webApi.search.searchTracks(searchText, {
           limit: 5,
         });
         setTracks(result.items);
@@ -38,7 +26,7 @@ export default function SearchBox({
     } else if (searchText.length <= 2) {
       setTracks([]);
     }
-  }, [searchText]);
+  }, [searchText, webApi]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => setVisible(false);

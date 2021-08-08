@@ -1,6 +1,6 @@
 import {useQuery, gql} from '@apollo/client';
 import {NexusGenFieldTypes} from '../graphql/nexus';
-import {useState, useEffect, useMemo} from 'react';
+import {useState, useEffect} from 'react';
 import {Track} from '@prisma/client';
 import {format} from 'date-fns';
 
@@ -19,13 +19,7 @@ const GET_PLAY_LIST = gql`
   }
 `;
 
-export default function PlayList({
-  spotifyToken,
-  stationId,
-}: {
-  spotifyToken: string;
-  stationId: number;
-}) {
+export default function PlayList({stationId}: {stationId: number}) {
   const {loading, error, data} = useQuery<Query>(GET_PLAY_LIST, {
     variables: {
       stationId,

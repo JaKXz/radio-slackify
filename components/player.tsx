@@ -1,8 +1,7 @@
 import {useQuery, gql} from '@apollo/client';
 import {NexusGenFieldTypes} from '../graphql/nexus';
 import {useState, useEffect} from 'react';
-import {Track} from '@prisma/client';
-import {loadActions, Actions} from '../spotify';
+import useSpotifyApis from '../hooks/use-spotify-apis';
 
 type Query = NexusGenFieldTypes['Query'];
 type Playback = NexusGenFieldTypes['Playback'];
@@ -23,13 +22,7 @@ const GET_PLAYBACK = gql`
   }
 `;
 
-export default function Player({
-  spotifyToken,
-  stationId,
-}: {
-  spotifyToken: string;
-  stationId: number;
-}) {
+export default function Player({stationId}: {stationId: number}) {
   const {loading, error, data} = useQuery<Query>(GET_PLAYBACK, {
     variables: {
       stationId,
@@ -37,8 +30,8 @@ export default function Player({
     pollInterval: 5000,
   });
   const [playback, setPlayback] = useState<Playback | null>(null);
-  const [actions, setActions] = useState<Actions | null>(null);
   const [paused, setPaused] = useState(true);
+  const {playbackApi, customWebApi} = useSpotifyApis();
 
   useEffect(() => {
     if (data && data.playback) {
@@ -47,32 +40,25 @@ export default function Player({
   }, [data]);
 
   useEffect(() => {
-    loadActions(spotifyToken).then((actions) => {
-      setActions(actions);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (actions) {
-      actions.addListener('player_state_changed', (state) => {
+    if (playbackApi) {
+      playbackApi.addListener('player_state_changed', (state) => {
         if (state) {
           setPaused(state.paused);
         }
-        // console.log(state);
       });
     }
-  }, [actions]);
+  }, [playbackApi]);
 
   return (
     <div>
       <div>
-        {playback && actions ? (
+        {playback && customWebApi ? (
           <div>
             <p>Currently playing:{playback.track.name}</p>
             <button
               onClick={() => {
-                if (playback.track.spotifyURI) {
-                  actions.play(
+                if (playback.track.spotifyURI && customWebApi) {
+                  customWebApi.play(
                     playback.track.spotifyURI,
                     playback.timeElapsedInSeconds * 1000,
                   );

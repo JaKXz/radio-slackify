@@ -34,9 +34,9 @@ export default function Station({station}: {station: StationType}) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1>Station - {station.name}</h1>
-      <Player spotifyToken={token} stationId={station.id} />
-      <SearchBox spotifyToken={token} stationId={station.id} />
-      <PlayList spotifyToken={token} stationId={station.id} />
+      <Player stationId={station.id} />
+      <SearchBox stationId={station.id} />
+      <PlayList stationId={station.id} />
     </div>
   );
 }
