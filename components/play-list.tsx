@@ -31,7 +31,7 @@ export default function PlayList({
       stationId,
       from: new Date('2021-08-01T13:33:18.688Z'),
     },
-    // pollInterval: 2000,
+    pollInterval: 5000,
   });
   const [list, setList] = useState<Track[]>([]);
 

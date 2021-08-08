@@ -30,15 +30,15 @@ export default function Player({
   spotifyToken: string;
   stationId: number;
 }) {
-  // const {spotifyToken, isSpotifyTokenExpired} = useSpotifyToken();
   const {loading, error, data} = useQuery<Query>(GET_PLAYBACK, {
     variables: {
       stationId,
     },
-    // pollInterval: 5000,
+    pollInterval: 5000,
   });
   const [playback, setPlayback] = useState<Playback | null>(null);
   const [actions, setActions] = useState<Actions | null>(null);
+  const [paused, setPaused] = useState(true);
 
   useEffect(() => {
     if (data && data.playback) {
@@ -53,19 +53,36 @@ export default function Player({
   }, []);
 
   useEffect(() => {
-    if (playback && playback.track.spotifyURI && actions) {
-      actions.play(
-        playback.track.spotifyURI,
-        playback.timeElapsedInSeconds * 1000,
-      );
+    if (actions) {
+      actions.addListener('player_state_changed', (state) => {
+        if (state) {
+          setPaused(state.paused);
+        }
+        // console.log(state);
+      });
     }
-  }, [playback, actions]);
+  }, [actions]);
 
   return (
     <div>
       <div>
-        {playback && playback.track.spotifyURI && actions ? (
-          <div>Currently playing:{playback.track.name}</div>
+        {playback && actions ? (
+          <div>
+            <p>Currently playing:{playback.track.name}</p>
+            <button
+              onClick={() => {
+                if (playback.track.spotifyURI) {
+                  actions.play(
+                    playback.track.spotifyURI,
+                    playback.timeElapsedInSeconds * 1000,
+                  );
+                }
+              }}
+              disabled={!paused}
+            >
+              Start Playing
+            </button>
+          </div>
         ) : (
           'No Track'
         )}

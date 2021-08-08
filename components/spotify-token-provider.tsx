@@ -3,10 +3,6 @@ import useLocalStorage from '../hooks/use-local-storage';
 import {useRouter} from 'next/router';
 import {parse} from 'query-string';
 import jwt from 'jsonwebtoken';
-// import uniqid from 'uniqid';
-// import Layout from './layout';
-// import styles from '../styles/Home.module.css';
-// import {createSpotifyLoginUrl} from '../auth/spotify';
 import Login from './login';
 
 type Props = {
@@ -26,9 +22,10 @@ export const SpotifyTokenContext = createContext<TokenData>({
 export default function SpotifyTokenProvider({children}: Props) {
   const [token, setToken] = useLocalStorage('spotify_token', '');
   const [expiry, setExpiry] = useLocalStorage('spotify_token_expiry', 0);
-  const [secret, setSecret] = useLocalStorage('spotify_token_state_secret', '');
+  const [secret] = useLocalStorage('spotify_token_state_secret', '');
   const [isTokenValid, setTokenValid] = useState(false);
   const [tokenError, setTokenError] = useState('');
+  const [timeLeft, setTimeLeft] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -54,17 +51,24 @@ export default function SpotifyTokenProvider({children}: Props) {
     const timeLeft = expiry - Date.now();
     if (token && timeLeft > 0) {
       setTokenValid(true);
-      // console.log(timeLeft / 1000);
-      setTimeout(() => {
+      const id1 = setTimeout(() => {
         setTokenValid(false);
       }, timeLeft);
+      const id2 = setTimeout(() => {
+        setTimeLeft(timeLeft);
+      }, 1000);
+      return () => {
+        clearTimeout(id1);
+        clearTimeout(id2);
+      };
     }
-  }, [expiry, token]);
+  }, [expiry, token, timeLeft]);
 
   // console.log(token, expiry, secret, tokenState);
   if (isTokenValid)
     return (
       <SpotifyTokenContext.Provider value={{token, expiry}}>
+        <p>{Math.ceil(timeLeft / 1000)}</p>
         {children}
       </SpotifyTokenContext.Provider>
     );
