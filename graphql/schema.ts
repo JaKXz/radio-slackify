@@ -175,12 +175,8 @@ const Track = objectType({
   definition(t) {
     t.id('id');
     t.nullable.string('spotifyURI');
-    t.field('playAt', {
-      type: 'DateTime',
-    });
-    t.nullable.field('endAt', {
-      type: 'DateTime',
-    });
+    t.datetime('playAt');
+    t.nullable.datetime('endAt');
     t.string('name');
     t.int('lengthInSeconds');
   },
