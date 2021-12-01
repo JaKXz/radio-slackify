@@ -5,6 +5,29 @@
 
 import type * as prisma from '.prisma/client';
 import type {Context} from './context';
+import type {core} from 'nexus';
+declare global {
+  interface NexusGenCustomInputMethods<TypeName extends string> {
+    /**
+     * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+     */
+    date<FieldName extends string>(
+      fieldName: FieldName,
+      opts?: core.CommonInputFieldConfig<TypeName, FieldName>,
+    ): void; // "DateTime";
+  }
+}
+declare global {
+  interface NexusGenCustomOutputMethods<TypeName extends string> {
+    /**
+     * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+     */
+    date<FieldName extends string>(
+      fieldName: FieldName,
+      ...opts: core.ScalarOutSpread<TypeName, FieldName>
+    ): void; // "DateTime";
+  }
+}
 
 declare global {
   interface NexusGen extends NexusGenTypes {}
@@ -20,6 +43,7 @@ export interface NexusGenScalars {
   Float: number;
   Boolean: boolean;
   ID: string;
+  DateTime: any;
 }
 
 export interface NexusGenObjects {
@@ -75,11 +99,11 @@ export interface NexusGenFieldTypes {
   };
   Track: {
     // field return type
-    endAt: string | null; // String
+    endAt: NexusGenScalars['DateTime'] | null; // DateTime
     id: string; // ID!
     lengthInSeconds: number; // Int!
     name: string; // String!
-    playAt: string; // String!
+    playAt: NexusGenScalars['DateTime']; // DateTime!
     spotifyURI: string | null; // String
   };
 }
@@ -113,11 +137,11 @@ export interface NexusGenFieldTypeNames {
   };
   Track: {
     // field return type name
-    endAt: 'String';
+    endAt: 'DateTime';
     id: 'ID';
     lengthInSeconds: 'Int';
     name: 'String';
-    playAt: 'String';
+    playAt: 'DateTime';
     spotifyURI: 'String';
   };
 }

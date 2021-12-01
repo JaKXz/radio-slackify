@@ -10,6 +10,7 @@ import {join} from 'path';
 import {add, differenceInSeconds, max} from 'date-fns';
 import {Station as StationModel} from '.prisma/client';
 import {Context} from './context';
+import {DateTime} from './types/DateTime';
 
 const Query = queryType({
   definition(t) {
@@ -175,19 +176,10 @@ const Track = objectType({
     t.id('id');
     t.nullable.string('spotifyURI');
     t.field('playAt', {
-      type: 'String',
-      async resolve(track) {
-        return track.playAt.toISOString();
-      },
+      type: 'DateTime',
     });
     t.nullable.field('endAt', {
-      type: 'String',
-      async resolve(track) {
-        if (track.endAt === null) {
-          return null;
-        }
-        return track.endAt.toISOString();
-      },
+      type: 'DateTime',
     });
     t.string('name');
     t.int('lengthInSeconds');
@@ -207,7 +199,7 @@ const Playback = objectType({
 });
 
 export const schema = makeSchema({
-  types: [Query, Mutation, Station, StationMeta, Track, Playback],
+  types: [Query, Mutation, Station, StationMeta, Track, Playback, DateTime],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),
