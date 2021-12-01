@@ -11,6 +11,9 @@ import {add, differenceInSeconds, max} from 'date-fns';
 import {Station as StationModel} from '.prisma/client';
 import {Context} from './context';
 import {DateTime} from './types/DateTime';
+import {PrismaClient} from '@prisma/client';
+
+const prisma = new PrismaClient({log: ['query', 'info']});
 
 const Query = queryType({
   definition(t) {
@@ -19,12 +22,15 @@ const Query = queryType({
       args: {
         id: nullable('ID'),
       },
-      resolve(_root, args, ctx) {
-        if (args.id) {
-          return ctx.prisma.station.findMany({where: {id: parseInt(args.id)}});
-        } else {
-          return ctx.prisma.station.findMany();
-        }
+      async resolve(_root, args) {
+        const promise = args.id
+          ? prisma.station.findMany({where: {id: parseInt(args.id)}})
+          : prisma.station.findMany();
+        const stations = await promise;
+        return stations.map((station) => ({
+          ...station,
+          id: String(station.id),
+        }));
       },
     });
 
@@ -35,7 +41,7 @@ const Query = queryType({
         from: 'String',
         to: nullable('String'),
       },
-      resolve(_root, args, ctx) {
+      async resolve(_root, args) {
         const fromDate = new Date(args.from);
         let whereClause;
         if (args.to) {
@@ -51,11 +57,14 @@ const Query = queryType({
             endAt: {gte: fromDate},
           };
         }
-        return ctx.prisma.track.findMany({
+
+        const tracks = await prisma.track.findMany({
           where: whereClause,
           orderBy: [{playAt: 'desc'}],
           take: 5,
         });
+
+        return tracks.map((track) => ({...track, id: String(track.id)}));
       },
     });
 
@@ -64,9 +73,9 @@ const Query = queryType({
       args: {
         stationId: 'ID',
       },
-      async resolve(_root, args, ctx) {
+      async resolve(_root, args) {
         const now = new Date();
-        const track = await ctx.prisma.track.findFirst({
+        const track = await prisma.track.findFirst({
           where: {
             stationId: parseInt(args.stationId),
             playAt: {lte: now},
@@ -75,7 +84,7 @@ const Query = queryType({
         });
         if (track) {
           return {
-            track,
+            track: {...track, id: String(track.id)},
             timeElapsedInSeconds: differenceInSeconds(now, track.playAt),
           };
         }
@@ -97,21 +106,26 @@ const Mutation = extendType({
         spotifyURI: nullable('String'),
       },
       async resolve(_root, args, ctx) {
-        const station = await ctx.prisma.station.findUnique({
+        const station = await prisma.station.findUnique({
           where: {id: parseInt(args.stationId)},
         });
-        const playAt = await calculateNewTrackPlayAt(station!, ctx);
+        const playAt = await calculateNewTrackPlayAt(station!);
         const endAt = add(playAt, {seconds: args.lengthInSeconds});
-        return ctx.prisma.track.create({
-          data: {
-            stationId: parseInt(args.stationId),
-            spotifyURI: args.spotifyURI,
-            playAt: playAt,
-            endAt: endAt,
-            name: args.name,
-            lengthInSeconds: args.lengthInSeconds,
-          },
-        });
+        return ctx.prisma.track
+          .create({
+            data: {
+              stationId: parseInt(args.stationId),
+              spotifyURI: args.spotifyURI,
+              playAt: playAt,
+              endAt: endAt,
+              name: args.name,
+              lengthInSeconds: args.lengthInSeconds,
+            },
+          })
+          .then((track) => ({
+            ...track,
+            id: String(track.id),
+          }));
       },
     });
 
@@ -121,19 +135,29 @@ const Mutation = extendType({
         name: 'String',
       },
       async resolve(_root, args, ctx) {
-        return ctx.prisma.station.create({
-          data: {
-            name: args.name,
-          },
-        });
+        // return ctx.prisma.station.create({
+        //   data: {
+        //     name: args.name,
+        //   },
+        // });
+        return prisma.station
+          .create({
+            data: {
+              name: args.name,
+            },
+          })
+          .then((station) => ({
+            ...station,
+            id: String(station.id),
+          }));
       },
     });
   },
 });
 
-async function calculateNewTrackPlayAt(station: StationModel, ctx: Context) {
+async function calculateNewTrackPlayAt(station: StationModel) {
   const now = new Date();
-  const lastTrack = await ctx.prisma.track.findFirst({
+  const lastTrack = await prisma.track.findFirst({
     where: {stationId: station.id},
     orderBy: {playAt: 'desc'},
   });
@@ -175,9 +199,9 @@ const Track = objectType({
   definition(t) {
     t.id('id');
     t.nullable.string('spotifyURI');
-    t.datetime('playAt');
+    t.nonNull.datetime('playAt');
     t.nullable.datetime('endAt');
-    t.string('name');
+    t.nonNull.string('name');
     t.int('lengthInSeconds');
   },
 });
@@ -201,10 +225,10 @@ export const schema = makeSchema({
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),
     typegen: join(process.cwd(), 'graphql', 'nexus.ts'),
   },
-  sourceTypes: {
-    modules: [{module: '.prisma/client', alias: 'prisma'}],
-    debug: process.env.NODE_ENV === 'development',
-  },
+  // sourceTypes: {
+  //   modules: [{module: '.prisma/client', alias: 'prisma'}],
+  //   debug: process.env.NODE_ENV === 'development',
+  // },
   contextType: {
     module: join(process.cwd(), 'graphql', 'context.ts'),
     export: 'Context',

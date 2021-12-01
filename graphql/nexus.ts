@@ -3,7 +3,6 @@
  * Do not make changes to this file directly
  */
 
-import type * as prisma from '.prisma/client';
 import type {Context} from './context';
 import type {core} from 'nexus';
 declare global {
@@ -54,12 +53,24 @@ export interface NexusGenObjects {
     track: NexusGenRootTypes['Track']; // Track!
   };
   Query: {};
-  Station: prisma.Station;
+  Station: {
+    // root type
+    id: string; // ID!
+    name: string; // String!
+  };
   StationMeta: {
     // root type
     name: string; // String!
   };
-  Track: prisma.Track;
+  Track: {
+    // root type
+    endAt?: NexusGenScalars['DateTime'] | null; // DateTime
+    id: string; // ID!
+    lengthInSeconds: number; // Int!
+    name: string; // String!
+    playAt: NexusGenScalars['DateTime']; // DateTime!
+    spotifyURI?: string | null; // String
+  };
 }
 
 export interface NexusGenInterfaces {}
