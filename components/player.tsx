@@ -36,18 +36,32 @@ export default function Player({stationId}: {stationId: number}) {
   useEffect(() => {
     if (data && data.playback) {
       setPlayback(data.playback);
+    } else {
+      setPlayback(null);
     }
   }, [data]);
 
   useEffect(() => {
     if (playbackApi) {
       playbackApi.addListener('player_state_changed', (state) => {
+        // console.log(state, playback);
         if (state) {
           setPaused(state.paused);
         }
       });
     }
   }, [playbackApi]);
+
+  useEffect(() => {
+    if (paused && customWebApi && playback && playback.track.spotifyURI) {
+      customWebApi.play(
+        playback.track.spotifyURI,
+        // playback.timeElapsedInSeconds * 1000,
+      );
+    }
+  }, [paused]);
+
+  // console.log(playback, data, error, loading);
 
   return (
     <div>

@@ -1,10 +1,11 @@
 import {useQuery, gql} from '@apollo/client';
-import {NexusGenFieldTypes} from '../graphql/nexus';
+import {NexusGenFieldTypes, NexusGenAllTypes} from '../graphql/nexus';
 import {useState, useEffect} from 'react';
-import {Track} from '@prisma/client';
+// import {Track} from '@prisma/client';
 import {format} from 'date-fns';
 
 type Query = NexusGenFieldTypes['Query'];
+type Track = NexusGenAllTypes['Track'];
 
 const GET_PLAY_LIST = gql`
   query StationPlaylist($stationId: ID!, $from: String!) {
@@ -31,6 +32,7 @@ export default function PlayList({stationId}: {stationId: number}) {
 
   useEffect(() => {
     if (data) {
+      // console.log(data);
       setList(data.tracks);
     }
   }, [data]);
