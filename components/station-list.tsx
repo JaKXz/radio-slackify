@@ -1,10 +1,10 @@
 import {useState, useEffect} from 'react';
 import {useQuery, gql} from '@apollo/client';
-import {NexusGenFieldTypes} from '../graphql/nexus';
+import {NexusGenFieldTypes, NexusGenObjects} from '../graphql/nexus';
 import Link from 'next/link';
-import {Station} from '@prisma/client';
 
 type Query = NexusGenFieldTypes['Query'];
+type Station = NexusGenObjects['Station'];
 
 const GET_STATION_LIST = gql`
   query Query {

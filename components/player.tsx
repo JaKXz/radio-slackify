@@ -42,21 +42,23 @@ export default function Player({stationId}: {stationId: number}) {
   }, [data]);
 
   useEffect(() => {
-    if (playbackApi) {
-      playbackApi.addListener('player_state_changed', (state) => {
-        // console.log(state, playback);
-        if (state) {
-          setPaused(state.paused);
-        }
-      });
-    }
+    const onStateChanged = (state: Spotify.PlaybackState) => {
+      console.log('player_state_changed', state, playback);
+      if (state) {
+        setPaused(state.paused);
+      }
+    };
+    playbackApi?.addListener('player_state_changed', onStateChanged);
+    return () => {
+      playbackApi?.removeListener('player_state_changed', onStateChanged);
+    };
   }, [playbackApi]);
 
   useEffect(() => {
-    if (paused && customWebApi && playback && playback.track.spotifyURI) {
+    if (!paused && customWebApi && playback && playback.track.spotifyURI) {
       customWebApi.play(
         playback.track.spotifyURI,
-        // playback.timeElapsedInSeconds * 1000,
+        playback.timeElapsedInSeconds * 1000,
       );
     }
   }, [paused]);
@@ -65,28 +67,37 @@ export default function Player({stationId}: {stationId: number}) {
 
   return (
     <div>
-      <div>
-        {playback && customWebApi ? (
-          <div>
-            <p>Currently playing:{playback.track.name}</p>
-            <button
-              onClick={() => {
-                if (playback.track.spotifyURI && customWebApi) {
+      {customWebApi ? (
+        playback ? (
+          <>
+            <p>Current Track:{playback.track.name}</p>
+            {paused ? (
+              <button
+                onClick={() => {
                   customWebApi.play(
-                    playback.track.spotifyURI,
+                    playback.track.spotifyURI!,
                     playback.timeElapsedInSeconds * 1000,
                   );
-                }
-              }}
-              disabled={!paused}
-            >
-              Start Playing
-            </button>
-          </div>
+                }}
+              >
+                Start Playing
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  customWebApi.pause();
+                }}
+              >
+                Stop Playing
+              </button>
+            )}
+          </>
         ) : (
-          'No Track'
-        )}
-      </div>
+          <p>No track is currently being played.</p>
+        )
+      ) : (
+        <p>Loading...</p>
+      )}
     </div>
   );
 }

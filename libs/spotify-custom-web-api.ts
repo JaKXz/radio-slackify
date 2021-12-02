@@ -39,4 +39,12 @@ export class SpotifyCustomWebApi {
       },
     });
   }
+
+  pause() {
+    return spotifyWebApiFetch({
+      uri: `/me/player/pause?device_id=${this.deviceId}`,
+      method: 'put',
+      token: this.token,
+    });
+  }
 }
