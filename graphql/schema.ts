@@ -8,9 +8,7 @@ import {
 } from 'nexus';
 import {join} from 'path';
 import {add, differenceInSeconds, max} from 'date-fns';
-import {Station as StationModel} from '.prisma/client';
-import {Context} from './context';
-import {DateTime} from './types/DateTime';
+import {Station as StationModel, Track as TrackModel} from '.prisma/client';
 import {PrismaClient} from '@prisma/client';
 
 const prisma = new PrismaClient({log: ['query', 'info']});
@@ -26,11 +24,8 @@ const Query = queryType({
         const promise = args.id
           ? prisma.station.findMany({where: {id: parseInt(args.id)}})
           : prisma.station.findMany();
-        const stations = await promise;
-        return stations.map((station) => ({
-          ...station,
-          id: String(station.id),
-        }));
+        const stationModels = await promise;
+        return stationModels.map(stationModelToStation);
       },
     });
 
@@ -58,13 +53,13 @@ const Query = queryType({
           };
         }
 
-        const tracks = await prisma.track.findMany({
+        const trackModels = await prisma.track.findMany({
           where: whereClause,
           orderBy: [{playAt: 'desc'}],
           take: 5,
         });
 
-        return tracks.map((track) => ({...track, id: String(track.id)}));
+        return trackModels.map(trackModelToTrack);
       },
     });
 
@@ -84,7 +79,7 @@ const Query = queryType({
         });
         if (track) {
           return {
-            track: {...track, id: String(track.id)},
+            track: trackModelToTrack(track),
             timeElapsedInSeconds: differenceInSeconds(now, track.playAt),
           };
         }
@@ -105,27 +100,22 @@ const Mutation = extendType({
         lengthInSeconds: 'Int',
         spotifyURI: nullable('String'),
       },
-      async resolve(_root, args, ctx) {
-        const station = await prisma.station.findUnique({
-          where: {id: parseInt(args.stationId)},
-        });
-        const playAt = await calculateNewTrackPlayAt(station!);
+      async resolve(_root, args) {
+        const stationId = parseInt(args.stationId);
+        const playAt = await calculateNewTrackPlayAt(stationId);
         const endAt = add(playAt, {seconds: args.lengthInSeconds});
-        return ctx.prisma.track
+        return prisma.track
           .create({
             data: {
-              stationId: parseInt(args.stationId),
+              stationId,
               spotifyURI: args.spotifyURI,
-              playAt: playAt,
-              endAt: endAt,
+              playAt,
+              endAt,
               name: args.name,
               lengthInSeconds: args.lengthInSeconds,
             },
           })
-          .then((track) => ({
-            ...track,
-            id: String(track.id),
-          }));
+          .then(trackModelToTrack);
       },
     });
 
@@ -134,31 +124,23 @@ const Mutation = extendType({
       args: {
         name: 'String',
       },
-      async resolve(_root, args, ctx) {
-        // return ctx.prisma.station.create({
-        //   data: {
-        //     name: args.name,
-        //   },
-        // });
+      async resolve(_root, args) {
         return prisma.station
           .create({
             data: {
               name: args.name,
             },
           })
-          .then((station) => ({
-            ...station,
-            id: String(station.id),
-          }));
+          .then(stationModelToStation);
       },
     });
   },
 });
 
-async function calculateNewTrackPlayAt(station: StationModel) {
+async function calculateNewTrackPlayAt(stationId: number) {
   const now = new Date();
   const lastTrack = await prisma.track.findFirst({
-    where: {stationId: station.id},
+    where: {stationId: stationId},
     orderBy: {playAt: 'desc'},
   });
   if (lastTrack === null) {
@@ -187,6 +169,13 @@ const Station = objectType({
   },
 });
 
+const stationModelToStation = (stationModel: StationModel) => {
+  return {
+    ...stationModel,
+    id: String(stationModel.id),
+  };
+};
+
 const StationMeta = objectType({
   name: 'StationMeta',
   definition(t) {
@@ -198,13 +187,22 @@ const Track = objectType({
   name: 'Track',
   definition(t) {
     t.id('id');
-    t.nullable.string('spotifyURI');
-    t.nonNull.datetime('playAt');
-    t.nullable.datetime('endAt');
     t.nonNull.string('name');
     t.int('lengthInSeconds');
+    t.nullable.string('spotifyURI');
+    t.nonNull.string('playAt');
+    t.nullable.string('endAt');
   },
 });
+
+const trackModelToTrack = (trackModel: TrackModel) => {
+  return {
+    ...trackModel,
+    id: String(trackModel.id),
+    playAt: trackModel.playAt.toISOString(),
+    endAt: trackModel.endAt?.toISOString(),
+  };
+};
 
 const Playback = objectType({
   name: 'Playback',
@@ -219,7 +217,7 @@ const Playback = objectType({
 });
 
 export const schema = makeSchema({
-  types: [Query, Mutation, Station, StationMeta, Track, Playback, DateTime],
+  types: [Query, Mutation, Station, StationMeta, Track, Playback],
   shouldGenerateArtifacts: process.env.NODE_ENV === 'development',
   outputs: {
     schema: join(process.cwd(), 'graphql', 'schema.graphql'),

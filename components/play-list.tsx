@@ -1,7 +1,6 @@
 import {useQuery, gql} from '@apollo/client';
 import {NexusGenFieldTypes, NexusGenObjects} from '../graphql/nexus';
 import {useState, useEffect} from 'react';
-// import {Track} from '@prisma/client';
 import {format} from 'date-fns';
 
 type Query = NexusGenFieldTypes['Query'];
