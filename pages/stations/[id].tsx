@@ -56,13 +56,11 @@ interface IParams extends ParsedUrlQuery {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const {id} = context.params as IParams;
-  const {error, data} = await client.query<Query>({
-    query: GET_STATION_LIST,
-    variables: {id},
-  });
+  const {error, data} = await client.query<Query>({query: GET_STATION_LIST});
+
   return {
     props: {
-      station: data.stations[0],
+      station: data.stations.find((station) => station.id === id),
     },
   };
 };
