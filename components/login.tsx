@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import useLocalStorage from '../hooks/use-local-storage';
 import jwt from 'jsonwebtoken';
 import uniqid from 'uniqid';
-import Layout from './layout';
+// import Layout from './app';
 import styles from '../styles/Home.module.css';
 import {createSpotifyLoginUrl} from '../auth/spotify';
 
@@ -27,23 +27,14 @@ export default function Login({redirectTo}: {redirectTo: string}) {
 
   if (tokenState)
     return (
-      <Layout>
-        <div className={styles.container}>
-          <main className={styles.main}>
-            <a
-              className={styles.SignIn}
-              href={createSpotifyLoginUrl(tokenState)}
-            >
-              Login to Spotify
-            </a>
-          </main>
-        </div>
-      </Layout>
+      <div className={styles.container}>
+        <main className={styles.main}>
+          <a className={styles.SignIn} href={createSpotifyLoginUrl(tokenState)}>
+            Login to Spotify
+          </a>
+        </main>
+      </div>
     );
 
-  return (
-    <Layout>
-      <p>Please wait...</p>
-    </Layout>
-  );
+  return <p>Please wait...</p>;
 }

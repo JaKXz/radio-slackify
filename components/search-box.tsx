@@ -19,7 +19,6 @@ export default function SearchBox({stationId}: {stationId: number}) {
         });
         setTracks(result.items);
         setSearching(false);
-        // setVisible(false);
       };
       setSearching(true);
       search();

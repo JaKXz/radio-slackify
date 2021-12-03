@@ -20,18 +20,25 @@ const GET_PLAY_LIST = gql`
 `;
 
 export default function PlayList({stationId}: {stationId: number}) {
-  const {loading, error, data} = useQuery<Query>(GET_PLAY_LIST, {
-    variables: {
-      stationId,
-      from: new Date('2021-08-01T13:33:18.688Z'),
+  const {loading, error, data, startPolling, stopPolling} = useQuery<Query>(
+    GET_PLAY_LIST,
+    {
+      variables: {
+        stationId,
+        from: new Date('2021-08-01T13:33:18.688Z'),
+      },
     },
-    pollInterval: 5000,
-  });
+  );
   const [list, setList] = useState<Track[]>([]);
 
   useEffect(() => {
+    startPolling(1000);
+  }, [startPolling]);
+
+  useEffect(() => () => stopPolling(), [stopPolling]);
+
+  useEffect(() => {
     if (data) {
-      // console.log(data);
       setList(data.tracks);
     }
   }, [data]);
