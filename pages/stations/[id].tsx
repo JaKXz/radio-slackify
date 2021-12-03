@@ -9,7 +9,7 @@ import SearchBox from '../../components/search-box';
 import PlayList from '../../components/play-list';
 import StationPlayer from '../../components/station-player';
 import Link from 'next/link';
-import styles from '../../styles/Station.module.css';
+import styles from '../../styles/station-page.module.css';
 
 type Query = NexusGenFieldTypes['Query'];
 

@@ -9,12 +9,13 @@ type Props = {
 
 export default function App({children}: Props) {
   return (
-    <div>
+    <div className={styles.container}>
       <header className={styles.header}>
         <h1>Radio Slackify</h1>
         <SpotifyPlaybackViewer />
       </header>
-      {children}
+      <main className={styles.main}>{children}</main>
+      <footer className={styles.footer}>Radio Slackify</footer>
     </div>
   );
 }

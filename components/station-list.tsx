@@ -34,8 +34,8 @@ export default function StationList() {
   }, [data]);
 
   return (
-    <div>
-      <h3>Stations</h3>
+    <>
+      <h2>Stations</h2>
       {stations.length > 0 && (
         <ul>
           {stations.map((station) => (
@@ -45,6 +45,6 @@ export default function StationList() {
           ))}
         </ul>
       )}
-    </div>
+    </>
   );
 }

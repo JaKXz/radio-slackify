@@ -51,15 +51,15 @@ export default function SpotifyTokenProvider({children}: Props) {
     const timeLeft = expiry - Date.now();
     if (token && timeLeft > 0) {
       setTokenValid(true);
-      const id1 = setTimeout(() => {
+      const timeout1 = setTimeout(() => {
         setTokenValid(false);
       }, timeLeft);
-      const id2 = setTimeout(() => {
+      const timeout2 = setTimeout(() => {
         setTimeLeft(timeLeft);
       }, 1000);
       return () => {
-        clearTimeout(id1);
-        clearTimeout(id2);
+        clearTimeout(timeout1);
+        clearTimeout(timeout2);
       };
     }
   }, [expiry, token, timeLeft]);
@@ -67,15 +67,15 @@ export default function SpotifyTokenProvider({children}: Props) {
   if (isTokenValid)
     return (
       <SpotifyTokenContext.Provider value={{token, expiry}}>
-        <p>{Math.ceil(timeLeft / 1000)}</p>
+        {/* <p>{Math.ceil(timeLeft / 1000)}</p> */}
         {children}
       </SpotifyTokenContext.Provider>
     );
   else
     return (
-      <div>
-        {tokenError && <p>{tokenError}</p>}
+      <>
+        {/* {tokenError && <p>{tokenError}</p>} */}
         <Login redirectTo={router.asPath} />
-      </div>
+      </>
     );
 }
