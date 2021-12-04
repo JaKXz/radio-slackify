@@ -1,6 +1,7 @@
 import React, {ReactNode} from 'react';
-import SpotifyPlaybackViewer from './spotify-playback-viewer';
+import SpotifyPlayer from './spotify-player';
 import styles from './app.module.css';
+import Link from 'next/link';
 
 type Props = {
   children?: ReactNode;
@@ -11,8 +12,10 @@ export default function App({children}: Props) {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>Radio Slackify</h1>
-        <SpotifyPlaybackViewer />
+        <h1>
+          <Link href="/">Radio Slackify</Link>
+        </h1>
+        <SpotifyPlayer />
       </header>
       <main className={styles.main}>{children}</main>
       <footer className={styles.footer}>Radio Slackify</footer>

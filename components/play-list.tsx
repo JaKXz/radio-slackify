@@ -27,6 +27,7 @@ export default function PlayList({stationId}: {stationId: number}) {
         stationId,
         from: new Date('2021-08-01T13:33:18.688Z'),
       },
+      fetchPolicy: 'no-cache',
     },
   );
   const [list, setList] = useState<Track[]>([]);

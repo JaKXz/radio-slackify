@@ -98,29 +98,18 @@ export default function StationPlayer({stationId}: {stationId: number}) {
               <li>Track Name:{stationPlayback.track.name}</li>
               <li>Duration:{stationPlayback.track.lengthInSeconds}</li>
               <li>Position:{stationPlayback.timeElapsedInSeconds}</li>
-              <li>Is Playing:{isPlaying ? 'Yes' : 'No'}</li>
             </ul>
-            <p></p>
-            {!isPlaying ? (
-              <button
-                onClick={() => {
-                  customWebApi.play(
-                    stationPlayback.track.spotifyURI!,
-                    stationPlayback.timeElapsedInSeconds * 1000,
-                  );
-                }}
-              >
-                Start Playing
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  customWebApi.pause();
-                }}
-              >
-                Stop Playing
-              </button>
-            )}
+            <button
+              onClick={() => {
+                customWebApi.play(
+                  stationPlayback.track.spotifyURI!,
+                  stationPlayback.timeElapsedInSeconds * 1000,
+                );
+              }}
+              disabled={isPlaying}
+            >
+              Start Playing on Spoitfy
+            </button>
           </>
         ) : (
           <p>No track is currently being played.</p>
