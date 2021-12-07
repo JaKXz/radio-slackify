@@ -17,13 +17,13 @@ export default function Login({redirectTo}: {redirectTo: string}) {
     if (isSecretInitialized && !secret) {
       setSecret(uniqid());
     }
-  }, [secret, isSecretInitialized]);
+  }, [secret, setSecret, isSecretInitialized]);
 
   useEffect(() => {
     if (secret && !tokenState) {
       setTokenState(jwt.sign({redirectTo}, secret));
     }
-  }, [secret, tokenState]);
+  }, [secret, redirectTo, tokenState]);
 
   if (tokenState)
     return (

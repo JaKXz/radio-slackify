@@ -1,5 +1,6 @@
 import {useState, useEffect} from 'react';
 import useSpotifyApis from '../hooks/use-spotify-apis';
+import Image from 'next/image';
 
 export default function SpotifyPlayer() {
   const [position, setPosition] = useState(0);
@@ -54,11 +55,13 @@ export default function SpotifyPlayer() {
               <li>
                 Album Art:
                 <br />
-                <img
+                <Image
                   src={
                     playbackState.track_window.current_track.album.images[0].url
                   }
+                  alt={playbackState.track_window.current_track.album.name}
                   width={200}
+                  height={200}
                 />
               </li>
             </ul>

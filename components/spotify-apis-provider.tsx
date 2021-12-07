@@ -23,13 +23,18 @@ export const SpotifyApiContext = createContext<SpotifyApis>({
 export default function SpotifyApisProvider({children}: Props) {
   const {token} = useSpotifyToken();
   const [playbackApi, setPlaybackApi] = useState<Spotify.Player | null>(null);
+  const [
+    isPlaybackApiInitializationStarted,
+    setPlaybackApiInitializationStarted,
+  ] = useState(false);
   const [customWebApi, setCustomWebApi] = useState<SpotifyCustomWebApi | null>(
     null,
   );
   const [webApi, setWebApi] = useState<SpotifyWebApi | null>(null);
 
   useEffect(() => {
-    if (token && !playbackApi) {
+    if (token && !isPlaybackApiInitializationStarted) {
+      setPlaybackApiInitializationStarted(true);
       loadSpotifyPlaybackApi().then(() => {
         const _playbackApi = new Spotify.Player({
           name: 'radio slackify',
@@ -59,7 +64,7 @@ export default function SpotifyApisProvider({children}: Props) {
       console.log('The Web SDK is ready!');
       setWebApi(_webApi);
     }
-  }, [token]);
+  }, [token, playbackApi, webApi, isPlaybackApiInitializationStarted]);
 
   return (
     <SpotifyApiContext.Provider value={{playbackApi, customWebApi, webApi}}>

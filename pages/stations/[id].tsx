@@ -2,7 +2,7 @@ import Head from 'next/head';
 import {gql} from '@apollo/client';
 import client from '../../graphql/apollo-client';
 import {NexusGenFieldTypes} from '../../graphql/nexus';
-import {GetStaticProps} from 'next';
+import {GetServerSideProps, GetStaticProps} from 'next';
 import {ParsedUrlQuery} from 'querystring';
 import {Station as StationType} from '@prisma/client';
 import SearchBox from '../../components/search-box';
@@ -50,10 +50,9 @@ interface IParams extends ParsedUrlQuery {
   id: string;
 }
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const {id} = context.params as IParams;
   const {error, data} = await client.query<Query>({query: GET_STATION_LIST});
-
   return {
     props: {
       station: data.stations.find((station) => station.id === id),
@@ -61,13 +60,24 @@ export const getStaticProps: GetStaticProps = async (context) => {
   };
 };
 
-export async function getStaticPaths() {
-  const {error, data} = await client.query<Query>({query: GET_STATION_LIST});
-  const paths = data
-    ? data.stations.map(({id}) => ({params: {id: id + ''}}))
-    : [];
-  return {
-    paths,
-    fallback: false,
-  };
-}
+// export const getStaticProps: GetStaticProps = async (context) => {
+//   const {id} = context.params as IParams;
+//   const {error, data} = await client.query<Query>({query: GET_STATION_LIST});
+
+//   return {
+//     props: {
+//       station: data.stations.find((station) => station.id === id),
+//     },
+//   };
+// };
+
+// export async function getStaticPaths() {
+//   const {error, data} = await client.query<Query>({query: GET_STATION_LIST});
+//   const paths = data
+//     ? data.stations.map(({id}) => ({params: {id: id + ''}}))
+//     : [];
+//   return {
+//     paths,
+//     fallback: false,
+//   };
+// }

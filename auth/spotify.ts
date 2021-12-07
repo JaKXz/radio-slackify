@@ -1,5 +1,10 @@
 import {stringify} from 'query-string';
 
+const PROTOCOL = process.env.PROTOCOL || 'http';
+const HOSTNAME = process.env.HOSTNAME || 'localhost';
+const PORT = Number.parseInt(process.env.PORT || '3000');
+const CLIENT_ID = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
+
 const authEndpoint: string = 'https://accounts.spotify.com/authorize';
 
 const scopes: string[] = [
@@ -21,9 +26,9 @@ export type SpofityLoginParams = {
 };
 
 export const spotifyLoginParams: SpofityLoginParams = {
-  client_id: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
+  client_id: CLIENT_ID,
   response_type: 'token',
-  redirect_uri: `http://localhost:3000/api/spotify-callback`,
+  redirect_uri: `${PROTOCOL}://${HOSTNAME}:${PORT}/api/spotify-callback`,
   scope: scopes.join('%20'),
   state: '',
 };

@@ -45,7 +45,7 @@ export default function SpotifyTokenProvider({children}: Props) {
         setTokenError('Failed to get an access token.');
       }
     }
-  }, [router, secret]);
+  }, [router, secret, setToken, setExpiry]);
 
   useEffect(() => {
     const timeLeft = expiry - Date.now();

@@ -3,6 +3,7 @@ import styles from './search-box.module.css';
 import {useMutation, gql} from '@apollo/client';
 import {Track} from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import useSpotifyApis from '../hooks/use-spotify-apis';
+import Image from 'next/image';
 
 export default function SearchBox({stationId}: {stationId: number}) {
   const [searchText, setSearchText] = useState('');
@@ -25,7 +26,7 @@ export default function SearchBox({stationId}: {stationId: number}) {
     } else if (searchText.length <= 2) {
       setTracks([]);
     }
-  }, [searchText, webApi]);
+  }, [searchText, isSearching, webApi]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => setVisible(false);
@@ -115,10 +116,12 @@ const TrackCard = ({
         <span className={styles.trackCardName}>{track.name}</span>
         <span className={styles.trackCardArtistName}>{artist.name}</span>
       </span>
-      <img
+      <Image
         className={styles.trackCardAlbumImage}
         alt={track.album.name}
         src={image.url}
+        width={image.width || 30}
+        height={image.height || 30}
       />
       {active && (
         <button
